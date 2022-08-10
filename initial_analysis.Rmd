@@ -1,0 +1,95 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.14.1
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+```{python pycharm={'name': '#%%\n'}}
+import os
+import itertools
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+```
+
+```{python pycharm={'name': '#%%\n'}}
+def get_dataframe_from_files(dir_with_files: str, verbose: bool = False) -> pd.DataFrame:
+   if not dir_with_files.endswith('/'):
+      dir_with_files += '/'
+
+   files = os.listdir(dir_with_files)
+   if verbose:
+      print(f"Checking {len(files)} files. . .")
+   data_files = []
+   for i, file in enumerate(files, start=1):
+      if verbose and i % 100 == 0:
+         print(f"Checking {i}/{len(files)} ({i / len(files) * 100:.2f}%). . .")
+      path = f"{dir_with_files}{file}"
+      if path.endswith(".csv") and os.path.isfile(path):
+         data_files.append(path)
+
+
+   if verbose:
+      print(f"Reading {len(data_files)} files. . .")
+   dfs = []
+   for i, file in enumerate(data_files, start=1):
+      if verbose and i % 100 == 0:
+         print(f"Reading {i}/{len(files)} ({i / len(files) * 100:.2f}%). . .")
+      dfs.append(pd.read_csv(file))
+   print("Done reading! Concatenating. . .")
+   return pd.concat(dfs)
+```
+
+```{python pycharm={'name': '#%%\n'}}
+df = get_dataframe_from_files("./data", True)
+df.describe()
+```
+
+```{python pycharm={'name': '#%%\n'}}
+df.head()
+```
+
+```{python pycharm={'name': '#%%\n'}}
+non_error_columns = list(set(df.columns) - {"SquaredError", "SystemEstimate"})
+df_averaged_error = df.groupby(non_error_columns).mean().reset_index()
+```
+
+```{python pycharm={'name': '#%%\n'}}
+df_averaged_error
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+
+<!-- #endregion -->
+
+```{python pycharm={'name': '#%%\n'}}
+df_averaged_error["proxy:inactive"] = df_averaged_error["ProxyCount"] / df_averaged_error["InactiveCount"]
+```
+
+```{python pycharm={'name': '#%%\n'}}
+proxy_dists = set(df["ProxyDistribution"])
+inactive_dists = set(df["InactiveDistribution"])
+```
+
+```{python pycharm={'name': '#%%\n'}}
+max_average_error = max(df_averaged_error["SquaredError"])
+for dist_p, dist_i in itertools.product(proxy_dists, inactive_dists):
+   target_rows = df_averaged_error[
+       (df_averaged_error["ProxyDistribution"] == dist_p) &
+       (df_averaged_error["InactiveDistribution"] == dist_i)]
+   plot = sns.relplot(x="InactiveCount", y="SquaredError",
+                      data=target_rows, hue="VotingMechanism",
+                      col="InactiveWeightingMechanism", col_wrap=2, kind="line")
+   plot.figure.suptitle(f"ProxyDist = {dist_p}, InactiveDist = {dist_i}")
+   plot.figure.subplots_adjust(top=.9)
+   plot.set(ylim=(0, max_average_error * 1.05))
+```

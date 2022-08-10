@@ -1,3 +1,6 @@
+Expert dists: Uniform, Gaussian, Beta(4, 4)
+
+
 Higher inactive count with worse dist results in worse error
 Inversely, higher inactive count with better dist results in better error
 Same is true for proxies

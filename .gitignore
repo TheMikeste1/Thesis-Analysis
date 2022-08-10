@@ -283,3 +283,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# For jupytext
+*.ipynb
+
+/data/

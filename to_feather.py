@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 
-def featherify(dir_with_files: str, verbose: bool = False):
+def featherify_all_in(dir_with_files: str, verbose: bool = False):
     if not dir_with_files.endswith('/'):
         dir_with_files += '/'
 
@@ -13,24 +13,24 @@ def featherify(dir_with_files: str, verbose: bool = False):
     data_files = []
     for i, file in enumerate(files, start=1):
         if verbose and i % 100 == 0:
-            print(f"Checking {i}/{len(files)} ({i / len(files) * 100:.2f}%). . .")
+            print(
+                f"Checking {i}/{len(files)} ({i / len(files) * 100:.2f}%). . .")
         path = f"{dir_with_files}{file}"
         if path.endswith(".csv") and os.path.isfile(path):
             data_files.append(path)
 
     if verbose:
-        print(f"Reading {len(data_files)} files. . .")
-    dfs = dict()
+        print(f"Featherify-ing {len(data_files)} files. . .")
     for i, file in enumerate(data_files, start=1):
         if verbose and i % 100 == 0:
-            print(f"Reading {i}/{len(files)} ({i / len(files) * 100:.2f}%). . .")
-        dfs[file] = pd.read_csv(file)
-    if verbose:
-        print("Done reading! Feathering. . .")
-    for path, file in dfs.items():
-        new_path = path.replace(".csv", ".feather")
-        file.to_feather(new_path)
+            print(
+                f"Featherify-ing {i}/{len(files)} ("
+                f"{i / len(files) * 100:.2f}%). . .")
+        featherify(file)
 
 
-if __name__ == "__main__":
-    featherify("./data/", verbose=True)
+def featherify(path: str):
+    assert path.endswith(".csv"), "Path must end with .csv"
+    new_path = path.replace(".csv", ".feather")
+    df = pd.read_csv(path)
+    df.to_feather(new_path)

@@ -1,2 +1,2 @@
 # Always pair ipynb notebooks to md files
-formats = ["ipynb", "Rmd"]
+formats = ["ipynb", "md"]

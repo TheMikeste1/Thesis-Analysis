@@ -286,4 +286,4 @@ cython_debug/
 # For jupytext
 *.ipynb
 
-/data/
+/notebooks/data/

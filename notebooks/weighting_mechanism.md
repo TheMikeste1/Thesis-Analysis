@@ -2,9 +2,9 @@
 jupyter:
   jupytext:
     text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.2'
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
       jupytext_version: 1.14.1
   kernelspec:
     display_name: Python 3
@@ -12,7 +12,7 @@ jupyter:
     name: python3
 ---
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 import os
 import itertools
 
@@ -21,7 +21,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 def get_dataframe_from_files(dir_with_files: str, verbose: bool = False) -> pd.DataFrame:
    if not dir_with_files.endswith('/'):
       dir_with_files += '/'
@@ -49,21 +49,21 @@ def get_dataframe_from_files(dir_with_files: str, verbose: bool = False) -> pd.D
    return pd.concat(dfs)
 ```
 
-```{python pycharm={'name': '#%%\n'}}
-df = get_dataframe_from_files("./data", True)
+```python pycharm={"name": "#%%\n"}
+df = get_dataframe_from_files("../data", True)
 df.describe()
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 df.head()
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 non_error_columns = list(set(df.columns) - {"SquaredError", "SystemEstimate"})
 df_averaged_error = df.groupby(non_error_columns).mean().reset_index()
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 df_averaged_error
 ```
 
@@ -71,11 +71,11 @@ df_averaged_error
 
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 df_averaged_error["proxy:inactive"] = df_averaged_error["ProxyCount"] / df_averaged_error["InactiveCount"]
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 max_average_error = max(df_averaged_error["SquaredError"])
 expert_dists = {"Uniform", "Gaussian", "Beta_4_4"}
 ```
@@ -96,11 +96,11 @@ Let's take a look at how the weighting mechanisms affect the squared error.
 Pretty much all of these are linear, which is a little strange. They are also quite chaotic, which might indicate a problem.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 x_col = "proxy:inactive"
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to expert
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -117,7 +117,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 plot.set(xscale="log")
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to untrained
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -134,7 +134,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 plot.set(xscale="log")
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to expert
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -151,7 +151,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 plot.set(xscale="log")
 ```
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to untrained
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -172,7 +172,7 @@ plot.set(xscale="log")
 ## InactiveCount
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 x_col = "InactiveCount"
 ```
 
@@ -182,7 +182,7 @@ Gradual decrease as count goes up. Uniform:Uniform is worst, followed by Any:Uni
 Interestingly, Uniform:Any besides Uniform makes all mechanisms very close, probably because it lends itself to the expertise of the inactives.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to expert
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -203,7 +203,7 @@ While mostly linear, there is a slight increase in error as more untrained inact
 The order of mechanisms is the same as before: Borda being the best, closely followed by Distance and a small gap to Closest. At best, Borda is slightly better than EqualWeight with Distance being about equivalent with distributions Uniform:$\beta(0.3, 0.3)$.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to untrained
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -222,7 +222,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 Surprisingly, the Closest mechanism seems to work best here, followed by Distance and then Borda. This is the exact opposite as the previous two setups! This setup also seems to work best with $\beta(0.3, 0.3)$, which is bimodal-symmetric. The more skewed the distribution of the proxies, the worse using expert inactives seems to work.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to expert
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -241,7 +241,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 Untrained to Untrained does not work very well. As expected, not having expert agents to rely on makes it hard for the system to estimate well. In some cases it's worse than EqualWeight. Generally, Borda or Closest are best, with Distance always being slightly worse than Borda. When worse than EqualWeight, adding more inactives makes it worse, while when better adding more makes slight increases.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to untrained
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -260,7 +260,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 ## ProxyCount
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 x_col = "ProxyCount"
 ```
 
@@ -270,7 +270,7 @@ Surprisingly, in Expert to Expert and Gaussian/$\beta(4, 4)$:Uniform it's genera
 As before, having both proxies and inactives being strong agents (Gaussian or $/beta(4, 4)$) is best.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to expert
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -289,7 +289,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 As with InactiveCount, Expert to Untrained does not work as well as expected. However, the difference is far more dramatic with increasing proxy counts. More proxies produces a significant increase in error, though the order of best mechanism remains the same. This might be because having more proxies gives the untrained inactive agents too many choices.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Expert to untrained
 target_rows = df_averaged_error[
    (df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -308,7 +308,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 Relying on the expertise of inactive agents seems to work fairly well. This works best with strong experts, and is worse with skewed untrained. The Closest mechanism is actually generally best here.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to expert
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &
@@ -327,7 +327,7 @@ plot = sns.relplot(x=x_col, y="SquaredError", kind="line",
 More proxies generally seems to help a little in Untrained to Untrained, though the error is much higher than other setups.
 <!-- #endregion -->
 
-```{python pycharm={'name': '#%%\n'}}
+```python pycharm={"name": "#%%\n"}
 # Untrained to untrained
 target_rows = df_averaged_error[
    (~df_averaged_error["ProxyDistribution"].isin(expert_dists)) &

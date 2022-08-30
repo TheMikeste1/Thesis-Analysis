@@ -190,6 +190,24 @@ df.groupby(by=["VotingMechanism"]).mean().reset_index()
 ```
 
 ```python pycharm={"name": "#%%\n"}
+average_mechanisms = [
+    "Mean",
+    "InstantRunoffAverage",
+    "WeightedInstantRunoffAverage",
+    "RankedChoice",
+]
+candidate_mechanisms = [
+    "Median",
+    "InstantRunoffCandidate",
+    "WeightedInstantRunoffCandidate",
+    "Plurality",
+]
+disable_chain_warning()
+df["VotingMechanism"] = pd.Categorical(df["VotingMechanism"], ordered=True, categories=average_mechanisms + candidate_mechanisms)
+enable_chain_warning()
+```
+
+```python pycharm={"name": "#%%\n"}
 plot = sns.boxenplot(data=df,
                      x="VotingMechanism",
                      y="SquaredError")
@@ -259,13 +277,21 @@ test_table = perform_utests_against_others(df, "SquaredError",
 print("Greater than Others")
 display(test_table[(test_table["PValueGreater"] < alpha)])
 
+print("Equal to Others")
+display(test_table[(test_table["PValueEqual"] < alpha)])
+
 print("Less than Others")
 display(test_table[(test_table["PValueLesser"] < alpha)])
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
+!!!!!! `TODO: This statement is false`
 Looks like all populations are about equal when compared to all others. What about when comparing the mechanism one-on-one?
 <!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+raise Exception("The statement above is false and needs to be revised")
+```
 
 ```python pycharm={"name": "#%%\n"}
 test_table = perform_utests_against_others_individually(df, "SquaredError",

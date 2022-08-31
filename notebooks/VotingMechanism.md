@@ -203,7 +203,8 @@ candidate_mechanisms = [
     "Plurality",
 ]
 disable_chain_warning()
-df["VotingMechanism"] = pd.Categorical(df["VotingMechanism"], ordered=True, categories=average_mechanisms + candidate_mechanisms)
+df["VotingMechanism"] = pd.Categorical(df["VotingMechanism"], ordered=True,
+                                       categories=average_mechanisms + [""] + candidate_mechanisms)
 enable_chain_warning()
 ```
 

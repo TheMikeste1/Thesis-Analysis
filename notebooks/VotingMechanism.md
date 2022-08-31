@@ -230,6 +230,12 @@ plot.set(ylim=(0, 1 * 1.1))
 plt.xticks(rotation=90);
 ```
 
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    plot.get_figure().savefig('voting_mechanisms_comparison.eps', format='eps')
+```
+
 <!-- #region pycharm={"name": "#%% md\n"} -->
 Hmmm. . . Those all look pretty close. Let's do some population tests to see if they're different from each other.
 <!-- #endregion -->

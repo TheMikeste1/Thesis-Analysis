@@ -57,6 +57,13 @@ def perform_utests_against_others(df: pd.DataFrame, test_column,
         target = df.loc[target_rows, test_column]
         others = df.loc[~target_rows, test_column]
 
+        if len(target) == 0:
+            print(f"Group {group} has 0 rows, skipping. . .")
+            continue
+        if len(others) == 0:
+            print(f"No rows are not part of {group}, skipping. . .")
+            continue
+
         result_greater = stats.mannwhitneyu(x=target, y=others,
                                             alternative="greater")
         result_not_equal = stats.mannwhitneyu(x=target, y=others,
@@ -92,6 +99,10 @@ def perform_utests_against_others_individually(df: pd.DataFrame, test_column,
             group_row[f"{col}Target"] = value
             target_rows &= df[col] == value
         target = df.loc[target_rows, test_column]
+        if len(target) == 0:
+            print(f"Group {group} has 0 rows, skipping. . .")
+            continue
+
         # Compare against all other groups
         for other_group in groups - {group}:
             out_row = dict(group_row)
@@ -101,7 +112,9 @@ def perform_utests_against_others_individually(df: pd.DataFrame, test_column,
                 out_row[f"{col}Other"] = value
                 other_rows &= df[col] == value
             others = df.loc[other_rows, test_column]
-
+            if len(others) == 0:
+                print(f"Group {other_group} has 0 rows, skipping. . .")
+                continue
             result_greater = stats.mannwhitneyu(x=target, y=others,
                                                 alternative="greater")
             result_not_equal = stats.mannwhitneyu(x=target, y=others,
@@ -202,36 +215,41 @@ candidate_mechanisms = [
     "WeightedInstantRunoffCandidate",
     "Plurality",
 ]
-disable_chain_warning()
-df["VotingMechanism"] = pd.Categorical(df["VotingMechanism"], ordered=True,
-                                       categories=average_mechanisms + [""] + candidate_mechanisms)
-enable_chain_warning()
 ```
 
 ```python pycharm={"name": "#%%\n"}
-plot = sns.boxenplot(data=df,
+df_plot = df.copy()
+disable_chain_warning()
+df_plot["VotingMechanism"] = pd.Categorical(df_plot["VotingMechanism"],
+                                            ordered=True,
+                                            categories=average_mechanisms
+                                                       + [""]
+                                                       + candidate_mechanisms)
+enable_chain_warning()
+
+plot = sns.boxenplot(data=df_plot,
                      x="VotingMechanism",
                      y="SquaredError")
 color = "k"
 plot.plot("VotingMechanism",
           "SquaredError",
-          data=df.groupby(by=["VotingMechanism"]).mean().reset_index(),
+          data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
           color=color,
           label="Mean Error",
           linestyle="-")
 plot.scatter("VotingMechanism",
              "SquaredError",
-             data=df.groupby(by=["VotingMechanism"]).mean().reset_index(),
+             data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
              color=color,
              label="_mean_error")
-
+del df_plot
 plot.legend(loc="upper right")
 plot.set(ylim=(0, 1 * 1.1))
 plt.xticks(rotation=90);
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     plot.get_figure().savefig('voting_mechanisms_comparison.eps', format='eps')
 ```
@@ -292,13 +310,12 @@ display(test_table[(test_table["PValueLesser"] < alpha)])
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
-!!!!!! `TODO: This statement is false`
-Looks like all populations are about equal when compared to all others. What about when comparing the mechanism one-on-one?
+Interestingly, the candidate mechanisms seem to perform worse than the average mechanisms. This isn't too surprising, since a single candidate probably isn't going to have the exactly correct estimate.
 <!-- #endregion -->
 
-```python pycharm={"name": "#%%\n"}
-raise Exception("The statement above is false and needs to be revised")
-```
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's see how the mechanisms compare one-on-one.
+<!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
 test_table = perform_utests_against_others_individually(df, "SquaredError",
@@ -308,6 +325,9 @@ test_table = perform_utests_against_others_individually(df, "SquaredError",
 ```python pycharm={"name": "#%%\n"}
 print("Greater than Other")
 display(test_table[(test_table["PValueGreater"] < alpha)])
+
+print("Equal to Others")
+display(test_table[(test_table["PValueEqual"] < alpha)])
 
 print("Less than Other")
 display(test_table[(test_table["PValueLesser"] < alpha)])

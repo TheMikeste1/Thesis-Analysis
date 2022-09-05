@@ -96,7 +96,7 @@ def perform_utests_against_others_individually(df: pd.DataFrame, test_column,
         # Get the rows for this group
         target_rows = np.ones(len(df)).astype(bool)
         for (value, col) in zip(group, group_by):
-            group_row[f"{col}Target"] = value
+            group_row[col] = value
             target_rows &= df[col] == value
         target = df.loc[target_rows, test_column]
         if len(target) == 0:
@@ -256,6 +256,35 @@ if should_save:
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
 Hmmm. . . Those all look pretty close. Let's do some population tests to see if they're different from each other.
+<!-- #endregion -->
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+We'll start with an ANOVA test to see if there's any reason to continue.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_group = df.groupby(by=["VotingMechanism"])
+stats.f_oneway(*[df_group.get_group(group)["SquaredError"] for group in df_group.groups])
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+At least one of the populations is definitely different. What about between Candidate and Average mechanisms?
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+anova_stat = stats.f_oneway(*[df_group.get_group(group)['SquaredError'] \
+                              for group in df_group.groups \
+                              if group in average_mechanisms])
+print(f"Average Mechanisms: {anova_stat}")
+
+anova_stat = stats.f_oneway(*[df_group.get_group(group)['SquaredError'] \
+                              for group in df_group.groups \
+                              if group in candidate_mechanisms])
+print(f"Candidate Mechanisms: {anova_stat}")
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There are definitely differences even between the mechanisms. Let's dive a little deeper.
 <!-- #endregion -->
 
 <!-- #region pycharm={"name": "#%% md\n"} -->

@@ -15,6 +15,7 @@ jupyter:
 ```python pycharm={"name": "#%%\n"}
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 from scipy import stats as stats
 import seaborn as sns
@@ -251,7 +252,9 @@ plt.xticks(rotation=90);
 ```python pycharm={"name": "#%%\n"}
 should_save = False
 if should_save:
-    plot.get_figure().savefig('voting_mechanisms_comparison.eps', format='eps')
+    if not os.path.exists("img"):
+        os.makedirs("img")
+    plot.get_figure().savefig('img/voting_mechanisms_comparison.eps', format='eps')
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->

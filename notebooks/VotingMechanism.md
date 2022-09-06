@@ -43,8 +43,9 @@ def get_data(filepaths: [str]) -> pd.DataFrame:
 ```
 
 ```python pycharm={"name": "#%%\n"}
-def perform_utests_against_others(df: pd.DataFrame, test_column,
-                                  group_by: [str]) -> pd.DataFrame:
+def perform_utests_against_others(
+    df: pd.DataFrame, test_column, group_by: [str]
+) -> pd.DataFrame:
     rows = []
     for group in df.groupby(by=group_by).groups:
         out_row = dict()
@@ -65,32 +66,37 @@ def perform_utests_against_others(df: pd.DataFrame, test_column,
             print(f"No rows are not part of {group}, skipping. . .")
             continue
 
-        result_greater = stats.mannwhitneyu(x=target, y=others,
-                                            alternative="greater")
-        result_not_equal = stats.mannwhitneyu(x=target, y=others,
-                                              alternative="two-sided")
-        result_less = stats.mannwhitneyu(x=target, y=others,
-                                         alternative="less")
-        out_row.update({
-            "Statistic"    : result_greater.statistic,
-            "PValueGreater": result_greater.pvalue,
-            "PValueEqual"  : 1 - result_not_equal.pvalue,
-            "PValueLesser" : result_less.pvalue})
+        result_greater = stats.mannwhitneyu(x=target, y=others, alternative="greater")
+        result_not_equal = stats.mannwhitneyu(
+            x=target, y=others, alternative="two-sided"
+        )
+        result_less = stats.mannwhitneyu(x=target, y=others, alternative="less")
+        out_row.update(
+            {
+                "Statistic": result_greater.statistic,
+                "PValueGreater": result_greater.pvalue,
+                "PValueEqual": 1 - result_not_equal.pvalue,
+                "PValueLesser": result_less.pvalue,
+            }
+        )
         rows.append(out_row)
 
     out = pd.DataFrame(rows)
-    return out\
-        .sort_values(list(set(out.columns) - {"Statistic", "PValueGreater", "PValueEqual", "PValueLesser"}))\
-        .reset_index(drop=True)
+    return out.sort_values(
+        list(
+            set(out.columns)
+            - {"Statistic", "PValueGreater", "PValueEqual", "PValueLesser"}
+        )
+    ).reset_index(drop=True)
 ```
 
 ```python pycharm={"name": "#%%\n"}
-def perform_utests_against_others_individually(df: pd.DataFrame, test_column,
-                                               group_by: [str]) -> pd.DataFrame:
+def perform_utests_against_others_individually(
+    df: pd.DataFrame, test_column, group_by: [str]
+) -> pd.DataFrame:
     rows = []
     groups = {
-        (g,) if not isinstance(g, tuple) else g
-        for g in df.groupby(by=group_by).groups
+        (g,) if not isinstance(g, tuple) else g for g in df.groupby(by=group_by).groups
     }
     for group in groups:
         group_row = dict()
@@ -116,22 +122,36 @@ def perform_utests_against_others_individually(df: pd.DataFrame, test_column,
             if len(others) == 0:
                 print(f"Group {other_group} has 0 rows, skipping. . .")
                 continue
-            result_greater = stats.mannwhitneyu(x=target, y=others,
-                                                alternative="greater")
-            result_not_equal = stats.mannwhitneyu(x=target, y=others,
-                                                  alternative="two-sided")
-            result_less = stats.mannwhitneyu(x=target, y=others,
-                                             alternative="less")
-            out_row.update({
-                "Statistic"    : result_greater.statistic,
-                "PValueGreater": result_greater.pvalue,
-                "PValueEqual"  : 1 - result_not_equal.pvalue,
-                "PValueLesser" : result_less.pvalue})
+            result_greater = stats.mannwhitneyu(
+                x=target, y=others, alternative="greater"
+            )
+            result_not_equal = stats.mannwhitneyu(
+                x=target, y=others, alternative="two-sided"
+            )
+            result_less = stats.mannwhitneyu(x=target, y=others, alternative="less")
+            out_row.update(
+                {
+                    "Statistic": result_greater.statistic,
+                    "PValueGreater": result_greater.pvalue,
+                    "PValueEqual": 1 - result_not_equal.pvalue,
+                    "PValueLesser": result_less.pvalue,
+                }
+            )
             rows.append(out_row)
     out = pd.DataFrame(rows)
-    return out\
-        .sort_values(list(set(out.columns) - {"Statistic", "PValueGreater", "PValueEqual", "PValueLesser"}))\
-        .reset_index(drop=True)
+    return out.sort_values(
+        list(
+            set(out.columns)
+            - {"Statistic", "PValueGreater", "PValueEqual", "PValueLesser"}
+        )
+    ).reset_index(drop=True)
+```
+
+```python pycharm={"name": "#%%\n"}
+def save_eps(fig: plt.Figure, name: str, dir_: str = "img"):
+    if not os.path.exists(dir_):
+        os.makedirs(dir_)
+    fig.savefig(f"{dir_}/{name}", format='eps')
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -252,9 +272,7 @@ plt.xticks(rotation=90);
 ```python pycharm={"name": "#%%\n"}
 should_save = False
 if should_save:
-    if not os.path.exists("img"):
-        os.makedirs("img")
-    plot.get_figure().savefig('img/voting_mechanisms_comparison.eps', format='eps')
+    save_eps(plot.get_figure(), "voting_mechanisms_comparison.eps")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -293,6 +311,17 @@ There are definitely differences even between the mechanisms. Let's dive a littl
 <!-- #region pycharm={"name": "#%% md\n"} -->
 It doesn't look like any population is normal, but let's double check.
 <!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    plot = sns.displot(data=df, x="SquaredError",
+                       col="VotingMechanism", col_wrap=2,
+                       col_order=average_mechanisms + candidate_mechanisms,
+                       kind="kde")
+    save_eps(plot.fig, "voting_mechanisms_distribution.eps")
+    plt.close(plot.fig)
+```
 
 ```python pycharm={"name": "#%%\n"}
 alpha = 0.05

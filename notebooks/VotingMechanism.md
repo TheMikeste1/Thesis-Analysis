@@ -151,7 +151,7 @@ def perform_utests_against_others_individually(
 def save_eps(fig: plt.Figure, name: str, dir_: str = "img"):
     if not os.path.exists(dir_):
         os.makedirs(dir_)
-    fig.savefig(f"{dir_}/{name}", format='eps')
+    fig.savefig(f"{dir_}/{name}", format='eps', bbox_inches='tight')
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -270,13 +270,61 @@ plt.xticks(rotation=90);
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
     save_eps(plot.get_figure(), "voting_mechanisms_comparison.eps")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
-Hmmm. . . Those all look pretty close. Let's do some population tests to see if they're different from each other.
+As an aside, what would an even distribution look like with squared error?
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+y = np.arange(-1, 1, 0.001)
+df_squared = pd.DataFrame(map(lambda x:x * x, y), columns=['y'])
+df_squared["x"] = ""
+df_test = pd.concat([df_squared, ])
+plot = sns.boxenplot(data=df_test,
+                     x="x",
+                     y="y")
+plot.set(ylim=(-0 * 1.1, 1 * 1.1))
+del df_test, df_squared, y
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.get_figure(), "expected_even_distribution_squared_error.eps")
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+What about a gaussian distribution?
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+y = np.random.normal(0, 1 / 3, size=int(1 / 0.001))
+df_squared = pd.DataFrame(map(lambda x:x * x, y), columns=['y'])
+df_squared["x"] = ""
+df_test = pd.concat([df_squared, ])
+plot = sns.boxenplot(data=df_test,
+                     x="x",
+                     y="y")
+plot.set(ylim=(-0 * 1.1, 1 * 1.1))
+del df_test, df_squared, y
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.get_figure(), "expected_gaussian_distribution_squared_error.eps")
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+### Population tests
+<!-- #endregion -->
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Anyway, the voting mechanism populations all look pretty close. Let's do some population tests to see if they're different from each other.
 <!-- #endregion -->
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -315,11 +363,26 @@ It doesn't look like any population is normal, but let's double check.
 ```python pycharm={"name": "#%%\n"}
 should_save = True
 if should_save:
-    plot = sns.displot(data=df, x="SquaredError",
-                       col="VotingMechanism", col_wrap=2,
-                       col_order=average_mechanisms + candidate_mechanisms,
+    sns.set(font_scale=1.25)
+    plot = sns.displot(data=df_original, x="SquaredError",
+                       col="VotingMechanism", col_wrap=3,
+                       col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
                        kind="kde")
-    save_eps(plot.fig, "voting_mechanisms_distribution.eps")
+    sns.set(font_scale=1)
+    save_eps(plot.fig, "voting_mechanisms_error_distribution.eps")
+    plt.close(plot.fig)
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    sns.set(font_scale=1.25)
+    plot = sns.displot(data=df_original, x="SystemEstimate",
+                       col="VotingMechanism", col_wrap=3,
+                       col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
+                       kind="kde")
+    sns.set(font_scale=1)
+    save_eps(plot.fig, "voting_mechanisms_estimate_distribution.eps")
     plt.close(plot.fig)
 ```
 
@@ -357,9 +420,6 @@ alpha = 0.05
 ```python pycharm={"name": "#%%\n"}
 test_table = perform_utests_against_others(df, "SquaredError",
                                            ["VotingMechanism"])
-```
-
-```python pycharm={"name": "#%%\n"}
 print("Greater than Others")
 display(test_table[(test_table["PValueGreater"] < alpha)])
 
@@ -381,9 +441,6 @@ Let's see how the mechanisms compare one-on-one.
 ```python pycharm={"name": "#%%\n"}
 test_table = perform_utests_against_others_individually(df, "SquaredError",
                                                         ["VotingMechanism"])
-```
-
-```python pycharm={"name": "#%%\n"}
 print("Greater than Other")
 display(test_table[(test_table["PValueGreater"] < alpha)])
 

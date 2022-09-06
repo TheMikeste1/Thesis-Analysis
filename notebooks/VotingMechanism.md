@@ -431,7 +431,17 @@ display(test_table[(test_table["PValueLesser"] < alpha)])
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
-Interestingly, the candidate mechanisms seem to perform worse than the average mechanisms. This isn't too surprising, since a single candidate probably isn't going to have the exactly correct estimate.
+Interestingly, the candidate mechanisms seem to perform worse than the average mechanisms. This isn't too surprising, since a single candidate probably isn't going to have the exactly correct estimate. However, let's confirm this.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+target = df[df["VotingMechanism"].isin(average_mechanisms)]
+others = df[df["VotingMechanism"].isin(candidate_mechanisms)]
+stats.mannwhitneyu(x=target["SquaredError"], y=others["SquaredError"], alternative="less")
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There is indeed a difference.
 <!-- #endregion -->
 
 <!-- #region pycharm={"name": "#%% md\n"} -->

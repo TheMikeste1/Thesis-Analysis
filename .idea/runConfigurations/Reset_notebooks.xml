@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Load notebooks" type="ShConfigurationType">
+  <configuration default="false" name="Reset notebooks" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="venv/Scripts/activate; jupytext --sync notebooks/*.md" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="false" />
-    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/load_notebooks.bat" />
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/reset_notebooks.bat" />
     <option name="SCRIPT_OPTIONS" value="" />
     <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
     <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />

@@ -13,6 +13,7 @@ jupyter:
 ---
 
 ```python pycharm={"name": "#%%\n"}
+import graphviz as gv
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -451,25 +452,93 @@ stats.mannwhitneyu(
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
-There is indeed a difference.
-<!-- #endregion -->
-
-<!-- #region pycharm={"name": "#%% md\n"} -->
-Let's see how the mechanisms compare one-on-one.
+There is indeed a difference. Let's take a quick peak at how each of them beat each other.
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
 test_table = perform_utests_against_others_individually(
     df, "SquaredError", ["VotingMechanism"]
 )
+```
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("all-voting-mechanisms-p-values")
+# Add all the mechanisms as nodes
+for vm in df["VotingMechanism"].unique():
+    dot.node(vm)
+# Create edges from the lessers to those they beat
+lessers = test_table[(test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2E}"
+    dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
+dot.graph_attr["ratio"] = "0.86363636363636363636363636363636"
+dot.render(format="eps", directory="img")
+dot
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+### Average Mechanisms
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_average = df[df["VotingMechanism"].isin(average_mechanisms)]
+disable_chain_warning()
+df_average["VotingMechanism"] = pd.Categorical(
+    df_average["VotingMechanism"], ordered=True, categories=average_mechanisms
+)
+enable_chain_warning()
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's start by checking if there is actually a difference between the average mechanisms.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_group = df_average.groupby(by="VotingMechanism")
+anova_stat = stats.f_oneway(
+    *[df_group.get_group(group)["SquaredError"] for group in df_group.groups]
+)
+del df_group
+anova_stat
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There is definitely a difference, even between these mechanisms! Let's compare them one-on-one.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+average_test_table = test_table[
+    (test_table["VotingMechanism"].isin(average_mechanisms)) &
+    (test_table["VotingMechanismOther"].isin(average_mechanisms))
+]
 print("Greater than Other")
-display(test_table[(test_table["PValueGreater"] < alpha)])
+display(average_test_table[(average_test_table["PValueGreater"] < alpha)])
 
 print("Equal to Others")
-display(test_table[(test_table["PValueEqual"] < alpha)])
+display(average_test_table[(average_test_table["PValueEqual"] < alpha)])
 
 print("Less than Other")
-display(test_table[(test_table["PValueLesser"] < alpha)])
+display(average_test_table[(average_test_table["PValueLesser"] < alpha)])
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's also create a simple graph to make this easier to visualize.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("average-mechanisms-p-values")
+# Add all the mechanisms as nodes
+for vm in df_average["VotingMechanism"].unique():
+    dot.node(vm)
+# Create edges from the lessers to those they beat
+lessers = average_test_table[(average_test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2E}"
+    dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
+dot.render(format="eps", directory="img")
+dot
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->

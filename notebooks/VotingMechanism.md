@@ -37,9 +37,9 @@ def enable_chain_warning():
 
 ```python pycharm={"name": "#%%\n"}
 def get_data(filepaths: [str]) -> pd.DataFrame:
-    return pd.concat(
-            [pd.read_feather(path) for path in filepaths]
-    ).reset_index(drop=True)
+    return pd.concat([pd.read_feather(path) for path in filepaths]).reset_index(
+        drop=True
+    )
 ```
 
 ```python pycharm={"name": "#%%\n"}
@@ -159,6 +159,7 @@ def save_eps(fig: plt.Figure, name: str, dir_: str = "img"):
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
+# fmt: off
 %%capture --no-stderr
 try:
     # noinspection PyUnresolvedReferences
@@ -168,12 +169,15 @@ try:
     %cd "/content/drive/MyDrive/Thesis Notebooks"
 except ImportError:
     %pwd
+# fmt: on
 ```
 
 ```python pycharm={"name": "#%%\n"}
-df_original = get_data([
-    "data/PES_21168000_rows_all_dists.feather",
-])
+df_original = get_data(
+    [
+        "data/PES_21168000_rows_all_dists.feather",
+    ]
+)
 df_original.info(memory_usage="deep")
 df_original.head()
 ```
@@ -241,36 +245,38 @@ candidate_mechanisms = [
 ```python pycharm={"name": "#%%\n"}
 df_plot = df.copy()
 disable_chain_warning()
-df_plot["VotingMechanism"] = pd.Categorical(df_plot["VotingMechanism"],
-                                            ordered=True,
-                                            categories=average_mechanisms
-                                                       + [""]
-                                                       + candidate_mechanisms)
+df_plot["VotingMechanism"] = pd.Categorical(
+    df_plot["VotingMechanism"],
+    ordered=True,
+    categories=average_mechanisms + [""] + candidate_mechanisms,
+)
 enable_chain_warning()
 
-plot = sns.boxenplot(data=df_plot,
-                     x="VotingMechanism",
-                     y="SquaredError")
+plot = sns.boxenplot(data=df_plot, x="VotingMechanism", y="SquaredError")
 color = "k"
-plot.plot("VotingMechanism",
-          "SquaredError",
-          data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
-          color=color,
-          label="Mean Error",
-          linestyle="-")
-plot.scatter("VotingMechanism",
-             "SquaredError",
-             data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
-             color=color,
-             label="_mean_error")
+plot.plot(
+    "VotingMechanism",
+    "SquaredError",
+    data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
+    color=color,
+    label="Mean Error",
+    linestyle="-",
+)
+plot.scatter(
+    "VotingMechanism",
+    "SquaredError",
+    data=df_plot.groupby(by=["VotingMechanism"]).mean().reset_index(),
+    color=color,
+    label="_mean_error",
+)
 del df_plot
 plot.legend(loc="upper right")
 plot.set(ylim=(0, 1 * 1.1))
-plt.xticks(rotation=90);
+plt.xticks(rotation=90)
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     save_eps(plot.get_figure(), "voting_mechanisms_comparison.eps")
 ```
@@ -281,18 +287,20 @@ As an aside, what would an even distribution look like with squared error?
 
 ```python pycharm={"name": "#%%\n"}
 y = np.arange(-1, 1, 0.001)
-df_squared = pd.DataFrame(map(lambda x:x * x, y), columns=['y'])
+df_squared = pd.DataFrame(map(lambda x: x * x, y), columns=["y"])
 df_squared["x"] = ""
-df_test = pd.concat([df_squared, ])
-plot = sns.boxenplot(data=df_test,
-                     x="x",
-                     y="y")
+df_test = pd.concat(
+    [
+        df_squared,
+    ]
+)
+plot = sns.boxenplot(data=df_test, x="x", y="y")
 plot.set(ylim=(-0 * 1.1, 1 * 1.1))
 del df_test, df_squared, y
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     save_eps(plot.get_figure(), "expected_even_distribution_squared_error.eps")
 ```
@@ -303,18 +311,20 @@ What about a gaussian distribution?
 
 ```python pycharm={"name": "#%%\n"}
 y = np.random.normal(0, 1 / 3, size=int(1 / 0.001))
-df_squared = pd.DataFrame(map(lambda x:x * x, y), columns=['y'])
+df_squared = pd.DataFrame(map(lambda x: x * x, y), columns=["y"])
 df_squared["x"] = ""
-df_test = pd.concat([df_squared, ])
-plot = sns.boxenplot(data=df_test,
-                     x="x",
-                     y="y")
+df_test = pd.concat(
+    [
+        df_squared,
+    ]
+)
+plot = sns.boxenplot(data=df_test, x="x", y="y")
 plot.set(ylim=(-0 * 1.1, 1 * 1.1))
 del df_test, df_squared, y
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     save_eps(plot.get_figure(), "expected_gaussian_distribution_squared_error.eps")
 ```
@@ -333,27 +343,13 @@ We'll start with an ANOVA test to see if there's any reason to continue.
 
 ```python pycharm={"name": "#%%\n"}
 df_group = df.groupby(by=["VotingMechanism"])
-stats.f_oneway(*[df_group.get_group(group)["SquaredError"] for group in df_group.groups])
+stats.f_oneway(
+    *[df_group.get_group(group)["SquaredError"] for group in df_group.groups]
+)
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
-At least one of the populations is definitely different. What about between Candidate and Average mechanisms?
-<!-- #endregion -->
-
-```python pycharm={"name": "#%%\n"}
-anova_stat = stats.f_oneway(*[df_group.get_group(group)['SquaredError'] \
-                              for group in df_group.groups \
-                              if group in average_mechanisms])
-print(f"Average Mechanisms: {anova_stat}")
-
-anova_stat = stats.f_oneway(*[df_group.get_group(group)['SquaredError'] \
-                              for group in df_group.groups \
-                              if group in candidate_mechanisms])
-print(f"Candidate Mechanisms: {anova_stat}")
-```
-
-<!-- #region pycharm={"name": "#%% md\n"} -->
-There are definitely differences even between the mechanisms. Let's dive a little deeper.
+There are definitely at least one difference between the mechanisms. Let's dive a little deeper.
 <!-- #endregion -->
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -361,26 +357,34 @@ It doesn't look like any population is normal, but let's double check.
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     sns.set(font_scale=1.25)
-    plot = sns.displot(data=df_original, x="SquaredError",
-                       col="VotingMechanism", col_wrap=3,
-                       col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
-                       kind="kde")
+    plot = sns.displot(
+        data=df_original,
+        x="SquaredError",
+        col="VotingMechanism",
+        col_wrap=3,
+        col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
+        kind="kde",
+    )
     sns.set(font_scale=1)
     save_eps(plot.fig, "voting_mechanisms_error_distribution.eps")
     plt.close(plot.fig)
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = True
+should_save = False
 if should_save:
     sns.set(font_scale=1.25)
-    plot = sns.displot(data=df_original, x="SystemEstimate",
-                       col="VotingMechanism", col_wrap=3,
-                       col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
-                       kind="kde")
+    plot = sns.displot(
+        data=df_original,
+        x="SystemEstimate",
+        col="VotingMechanism",
+        col_wrap=3,
+        col_order=average_mechanisms + candidate_mechanisms + ["WeightlessAverageAll"],
+        kind="kde",
+    )
     sns.set(font_scale=1)
     save_eps(plot.fig, "voting_mechanisms_estimate_distribution.eps")
     plt.close(plot.fig)
@@ -396,10 +400,12 @@ for target_mech in df["VotingMechanism"].unique():
 
     if stats.normaltest(population)[1] <= alpha:
         print(
-                f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely NOT normal *****")
+            f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely NOT normal *****"
+        )
     else:
         print(
-                f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely normal")
+            f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely normal"
+        )
         normal_mechs.add(target_mech)
 
 print()
@@ -418,8 +424,7 @@ alpha = 0.05
 ```
 
 ```python pycharm={"name": "#%%\n"}
-test_table = perform_utests_against_others(df, "SquaredError",
-                                           ["VotingMechanism"])
+test_table = perform_utests_against_others(df, "SquaredError", ["VotingMechanism"])
 print("Greater than Others")
 display(test_table[(test_table["PValueGreater"] < alpha)])
 
@@ -437,7 +442,9 @@ Interestingly, the candidate mechanisms seem to perform worse than the average m
 ```python pycharm={"name": "#%%\n"}
 target = df[df["VotingMechanism"].isin(average_mechanisms)]
 others = df[df["VotingMechanism"].isin(candidate_mechanisms)]
-stats.mannwhitneyu(x=target["SquaredError"], y=others["SquaredError"], alternative="less")
+stats.mannwhitneyu(
+    x=target["SquaredError"], y=others["SquaredError"], alternative="less"
+)
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -449,8 +456,9 @@ Let's see how the mechanisms compare one-on-one.
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
-test_table = perform_utests_against_others_individually(df, "SquaredError",
-                                                        ["VotingMechanism"])
+test_table = perform_utests_against_others_individually(
+    df, "SquaredError", ["VotingMechanism"]
+)
 print("Greater than Other")
 display(test_table[(test_table["PValueGreater"] < alpha)])
 
@@ -473,5 +481,6 @@ asymmetric_distros = [
     "Beta_1_4",
 ]
 symmetric_distros = set(df["ProxyDistribution"].unique()) & set(
-        df["InactiveDistribution"].unique()) - set(asymmetric_distros)
+    df["InactiveDistribution"].unique()
+) - set(asymmetric_distros)
 ```

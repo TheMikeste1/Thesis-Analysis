@@ -160,6 +160,9 @@ def save_eps(fig: plt.Figure, name: str, dir_: str = "img"):
 
 ```python pycharm={"name": "#%%\n"}
 # fmt: off
+```
+
+```python pycharm={"name": "#%%\n"}
 %%capture --no-stderr
 try:
     # noinspection PyUnresolvedReferences

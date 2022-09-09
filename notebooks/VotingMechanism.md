@@ -542,6 +542,134 @@ dot
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
+### Candidate Mechanisms
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_candidate = df[df["VotingMechanism"].isin(candidate_mechanisms)]
+disable_chain_warning()
+df_candidate["VotingMechanism"] = pd.Categorical(
+    df_candidate["VotingMechanism"], ordered=True, categories=candidate_mechanisms
+)
+enable_chain_warning()
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Again, let's start by checking if there is actually a difference between the candidate mechanisms.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_group = df_candidate.groupby(by="VotingMechanism")
+anova_stat = stats.f_oneway(
+    *[df_group.get_group(group)["SquaredError"] for group in df_group.groups]
+)
+del df_group
+anova_stat
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There's also a difference between candidate mechanisms! Let's follow the same patterns as with average mechanisms.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+candidate_test_table = test_table[
+    (test_table["VotingMechanism"].isin(candidate_mechanisms)) &
+    (test_table["VotingMechanismOther"].isin(candidate_mechanisms))
+]
+print("Greater than Other")
+display(candidate_test_table[(candidate_test_table["PValueGreater"] < alpha)])
+
+print("Equal to Others")
+display(candidate_test_table[(candidate_test_table["PValueEqual"] < alpha)])
+
+print("Less than Other")
+display(candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)])
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's create a graph again to make this easier to visualize.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("candidate-mechanisms-p-values")
+# Add all the mechanisms as nodes
+for vm in df_candidate["VotingMechanism"].unique():
+    dot.node(vm)
+# Create edges from the lessers to those they beat
+lessers = candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
+    dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
+dot.render(format="eps", directory="img")
+dot
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+## Symmetric vs Asymmetric
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_candidate = df[df["VotingMechanism"].isin(candidate_mechanisms)]
+disable_chain_warning()
+df_candidate["VotingMechanism"] = pd.Categorical(
+    df_candidate["VotingMechanism"], ordered=True, categories=candidate_mechanisms
+)
+enable_chain_warning()
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's start by checking if there is actually a difference between the candidate mechanisms.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_group = df_candidate.groupby(by="VotingMechanism")
+anova_stat = stats.f_oneway(
+    *[df_group.get_group(group)["SquaredError"] for group in df_group.groups]
+)
+del df_group
+anova_stat
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There is definitely a difference, even between these mechanisms! Let's compare them one-on-one.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+candidate_test_table = test_table[
+    (test_table["VotingMechanism"].isin(candidate_mechanisms)) &
+    (test_table["VotingMechanismOther"].isin(candidate_mechanisms))
+]
+print("Greater than Other")
+display(candidate_test_table[(candidate_test_table["PValueGreater"] < alpha)])
+
+print("Equal to Others")
+display(candidate_test_table[(candidate_test_table["PValueEqual"] < alpha)])
+
+print("Less than Other")
+display(candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)])
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+Let's also create a simple graph to make this easier to visualize.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("candidate-mechanisms-p-values")
+# Add all the mechanisms as nodes
+for vm in df_candidate["VotingMechanism"].unique():
+    dot.node(vm)
+# Create edges from the lessers to those they beat
+lessers = candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
+    dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
+dot.render(format="eps", directory="img")
+dot
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
 ## Symmetric vs Asymmetric
 <!-- #endregion -->
 

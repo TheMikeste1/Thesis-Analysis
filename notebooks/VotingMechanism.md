@@ -470,7 +470,7 @@ for vm in df["VotingMechanism"].unique():
 lessers = test_table[(test_table["PValueLesser"] < alpha)]
 for _, row in lessers.iterrows():
     p_value = row["PValueLesser"]
-    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2E}"
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
 dot.graph_attr["ratio"] = "0.86363636363636363636363636363636"
 dot.render(format="eps", directory="img")
@@ -535,7 +535,7 @@ for vm in df_average["VotingMechanism"].unique():
 lessers = average_test_table[(average_test_table["PValueLesser"] < alpha)]
 for _, row in lessers.iterrows():
     p_value = row["PValueLesser"]
-    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2E}"
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
 dot.render(format="eps", directory="img")
 dot

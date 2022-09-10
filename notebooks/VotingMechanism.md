@@ -143,7 +143,7 @@ plot.scatter(
 del df_plot
 plot.legend(loc="upper right")
 plot.set(ylim=(0, 1 * 1.1))
-plt.xticks(rotation=90)
+plt.xticks(rotation=90);
 ```
 
 ```python pycharm={"name": "#%%\n"}
@@ -263,27 +263,7 @@ if should_save:
 
 ```python pycharm={"name": "#%%\n"}
 alpha = 0.05
-print(f"P-score to be normal: {alpha}\n")
-normal_mechs = set()
-for target_mech in df["VotingMechanism"].unique():
-    data = df[df["VotingMechanism"] == target_mech]
-    population = data["SquaredError"]
-
-    if stats.normaltest(population)[1] <= alpha:
-        print(
-            f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely NOT normal *****"
-        )
-    else:
-        print(
-            f"{target_mech} p-score: {stats.normaltest(population)[1]:.3f}; is likely normal"
-        )
-        normal_mechs.add(target_mech)
-
-print()
-if normal_mechs:
-    print(f"Normal Dists: {normal_mechs}")
-else:
-    print("No normal distributions")
+check_normality_by_group(df, "SquaredError", ["VotingMechanism"], alpha)
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->

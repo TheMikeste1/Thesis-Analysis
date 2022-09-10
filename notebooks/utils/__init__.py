@@ -5,6 +5,42 @@ import pandas as pd
 from scipy import stats as stats
 
 
+def check_normality_by_group(
+    df: pd.DataFrame, test_column, group_by: [str], alpha: float = 0.05
+):
+    normals = set()
+    not_normals = set()
+    print(f"P-score to be normal: {alpha}\n")
+    for group in df.groupby(by=group_by).groups:
+        if not isinstance(group, tuple):
+            group = (group,)
+        target_rows = np.ones(len(df)).astype(bool)
+        for (value, col) in zip(group, group_by):
+            target_rows &= df[col] == value
+
+        target = df.loc[target_rows, test_column]
+        s = stats.normaltest(target)
+        result = (group, s)
+        if s[1] < alpha:
+            not_normals.add(result)
+        else:
+            normals.add(result)
+
+    if normals:
+        print(f"Likely normal")
+        for group, s in normals:
+            print(f"{group}; p = {s[1]:.2e}")
+    else:
+        print("No normal distributions")
+    print()
+    if not_normals:
+        print(f"Likely not normal")
+        for group, s in not_normals:
+            print(f"{group}; p = {s[1]:.2e}")
+    else:
+        print("No non-normal distributions")
+
+
 def disable_chain_warning():
     pd.options.mode.chained_assignment = None
 

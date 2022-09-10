@@ -249,7 +249,7 @@ display(test_table[(test_table["PValueLesser"] < alpha)])
 ```
 
 ```python pycharm={"name": "#%%\n"}
-dot = gv.Digraph("weighing-mechanisms-p-values")
+dot = gv.Digraph("weighting-mechanisms-p-values")
 # Add all the mechanisms as nodes
 for vm in df["InactiveWeightingMechanism"].unique():
     dot.node(vm)

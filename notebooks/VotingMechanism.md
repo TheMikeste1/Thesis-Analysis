@@ -22,6 +22,10 @@ import seaborn as sns
 from utils import *
 ```
 
+```python pycharm={"name": "#%%\n"}
+img_path = "voting_mechanisms"
+```
+
 <!-- #region pycharm={"name": "#%% md\n"} -->
 ## Read in the data
 <!-- #endregion -->
@@ -147,9 +151,9 @@ plt.xticks(rotation=90);
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
-    save_eps(plot.get_figure(), "voting_mechanisms_comparison.eps")
+    save_eps(plot.get_figure(), dir_=f"img/{img_path}", name="voting_mechanisms_comparison.eps")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -171,7 +175,7 @@ del df_test, df_squared, y
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
     save_eps(plot.get_figure(), "expected_even_distribution_squared_error.eps")
 ```
@@ -195,7 +199,7 @@ del df_test, df_squared, y
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
     save_eps(plot.get_figure(), "expected_gaussian_distribution_squared_error.eps")
 ```
@@ -228,7 +232,7 @@ It doesn't look like any population is normal, but let's double check.
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
     sns.set(font_scale=1.25)
     plot = sns.displot(
@@ -240,12 +244,12 @@ if should_save:
         kind="kde",
     )
     sns.set(font_scale=1)
-    save_eps(plot.fig, "voting_mechanisms_error_distribution.eps")
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="voting_mechanisms_error_distribution.eps")
     plt.close(plot.fig)
 ```
 
 ```python pycharm={"name": "#%%\n"}
-should_save = False
+should_save = True
 if should_save:
     sns.set(font_scale=1.25)
     plot = sns.displot(
@@ -257,7 +261,7 @@ if should_save:
         kind="kde",
     )
     sns.set(font_scale=1)
-    save_eps(plot.fig, "voting_mechanisms_estimate_distribution.eps")
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="voting_mechanisms_estimate_distribution.eps")
     plt.close(plot.fig)
 ```
 
@@ -320,7 +324,7 @@ for _, row in lessers.iterrows():
     label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
 dot.graph_attr["ratio"] = "0.86363636363636363636363636363636"
-dot.render(format="eps", directory="img")
+dot.render(format="eps", directory=f"img/{img_path}/")
 dot
 ```
 
@@ -384,7 +388,7 @@ for _, row in lessers.iterrows():
     p_value = row["PValueLesser"]
     label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
-dot.render(format="eps", directory="img")
+dot.render(format="eps", directory=f"img/{img_path}/")
 dot
 ```
 
@@ -448,7 +452,7 @@ for _, row in lessers.iterrows():
     p_value = row["PValueLesser"]
     label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
-dot.render(format="eps", directory="img")
+dot.render(format="eps", directory=f"img/{img_path}/")
 dot
 ```
 
@@ -512,7 +516,7 @@ for _, row in lessers.iterrows():
     p_value = row["PValueLesser"]
     label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
     dot.edge(row["VotingMechanism"], row["VotingMechanismOther"], label=label)
-dot.render(format="eps", directory="img")
+dot.render(format="eps", directory=f"img/{img_path}/")
 dot
 ```
 

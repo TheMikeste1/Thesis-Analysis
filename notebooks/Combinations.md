@@ -237,9 +237,6 @@ test_table = perform_utests_against_others_individually(
 
 ```python pycharm={"name": "#%%\n"}
 lessers = test_table[(test_table["PValueLesser"] < alpha)]
-```
-
-```python pycharm={"name": "#%%\n"}
 plot = sns.countplot(
     data=lessers,
     x="VotingMechanism",
@@ -248,7 +245,14 @@ plot = sns.countplot(
 )
 plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
 max_possible = len(df.groupby(by=group_cols).groups) - 1
-plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})")
+lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, "combined_lesser_counts.eps", dir_=f"img/{img_path}")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -290,6 +294,7 @@ dot
 ```
 
 ```python pycharm={"name": "#%%\n"}
+lessers = average_test_table[(average_test_table["PValueLesser"] < alpha)]
 plot = sns.countplot(
     data=lessers,
     x="VotingMechanism",
@@ -298,7 +303,14 @@ plot = sns.countplot(
 )
 plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
 max_possible = len(df_average.groupby(by=group_cols).groups) - 1
-plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})")
+lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, "combined_average_lesser_counts.eps", dir_=f"img/{img_path}")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -340,6 +352,7 @@ dot
 ```
 
 ```python pycharm={"name": "#%%\n"}
+lessers = candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)]
 plot = sns.countplot(
     data=lessers,
     x="VotingMechanism",
@@ -348,5 +361,12 @@ plot = sns.countplot(
 )
 plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
 max_possible = len(df_candidate.groupby(by=group_cols).groups) - 1
-plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})")
+lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, "combined_candidate_lesser_counts.eps", dir_=f"img/{img_path}")
 ```

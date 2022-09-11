@@ -137,29 +137,13 @@ def custom_plot(data: pd.DataFrame, x, y, mean_var=None, x_plot_color="k", **kwa
             label=f"{mean_var} Mean {y}",
             linestyle="-.",
         )
-    plot = sns.pointplot(
+    sns.pointplot(
         data=data.groupby(by=[x]).mean().reset_index(),
         x=x,
         y=y,
         color=x_plot_color,
-        # label=f"{x} Mean {y}",
         ax=plot,
     )
-    # plot.plot(
-    #     x,
-    #     y,
-    #     data=data.groupby(by=[x]).mean().reset_index(),
-    #     color=x_plot_color,
-    #     label=f"{x} Mean {y}",
-    #     linestyle="-",
-    # )
-    # plot.scatter(
-    #     x,
-    #     y,
-    #     data=data.groupby(by=[x]).mean().reset_index(),
-    #     color=x_plot_color,
-    #     label=f"_{x}_mean_{y}",
-    # )
 ```
 
 ```python pycharm={"name": "#%%\n"}
@@ -195,4 +179,134 @@ del df_plot
 should_save = True
 if should_save:
     save_eps(plot.fig, "combined_comparison.eps", dir_=f"img/{img_path}")
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+We can learn some interesting things from this graph. First, the candidate mechanisms are consistently higher than the average for each weighting mechanism. Secondly, the Runoff mechanisms are occasionally almost as bad as the candidate mechanisms!
+<!-- #endregion -->
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+We'll take a similar path as with voting mechanisms--let's start with population tests.
+<!-- #endregion -->
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+### Population tests
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+group_cols = ["VotingMechanism", "InactiveWeightingMechanism"]
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+We'll start with an ANOVA test to see if there's any reason to continue.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_group = df.groupby(by=group_cols)
+stats.f_oneway(
+    *[df_group.get_group(group)["SquaredError"] for group in df_group.groups]
+)
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+There are definitely at least one difference between the mechanisms. Let's dive a little deeper.
+<!-- #endregion -->
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+It doesn't look like any population is normal, but let's double check.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+alpha = 0.05
+check_normality_by_group(df, "SquaredError", group_cols, alpha)
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+The data is definitely not normal. We'll use U-tests.
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+alpha = 0.05
+```
+
+```python pycharm={"name": "#%%\n"}
+test_table = perform_utests_against_others_individually(
+    df, "SquaredError", group_cols
+)
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+### Average Mechanisms
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_average = df[df["VotingMechanism"].isin(average_mechanisms)]
+disable_chain_warning()
+df_average["VotingMechanism"] = pd.Categorical(
+    df_average["VotingMechanism"], ordered=True, categories=average_mechanisms
+)
+enable_chain_warning()
+```
+
+```python pycharm={"name": "#%%\n"}
+average_test_table = test_table[
+    (test_table["VotingMechanism"].isin(average_mechanisms)) &
+    (test_table["VotingMechanismOther"].isin(average_mechanisms))
+]
+```
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("all-combos-p-values")
+# Add all the mechanisms as nodes
+for vm, wm in df_average.groupby(group_cols).groups:
+    dot.node(f"{vm}\n{wm}")
+# Create edges from the lessers to those they beat
+lessers = average_test_table[(average_test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
+    l_node = f'{row["VotingMechanism"]}\n{row["InactiveWeightingMechanism"]}'
+    r_node = f'{row["VotingMechanismOther"]}\n{row["InactiveWeightingMechanismOther"]}'
+    dot.edge(l_node, r_node, label=label)
+dot.graph_attr["ratio"] = f"{9.5 / 11}"
+dot.render(format="eps", directory=f"img/{img_path}/")
+dot
+```
+
+<!-- #region pycharm={"name": "#%% md\n"} -->
+### Candidate Mechanisms
+<!-- #endregion -->
+
+```python pycharm={"name": "#%%\n"}
+df_candidate = df[df["VotingMechanism"].isin(candidate_mechanisms)]
+disable_chain_warning()
+df_candidate["VotingMechanism"] = pd.Categorical(
+    df_candidate["VotingMechanism"], ordered=True, categories=candidate_mechanisms
+)
+enable_chain_warning()
+```
+
+```python pycharm={"name": "#%%\n"}
+candidate_test_table = test_table[
+    (test_table["VotingMechanism"].isin(candidate_mechanisms)) &
+    (test_table["VotingMechanismOther"].isin(candidate_mechanisms))
+]
+```
+
+```python pycharm={"name": "#%%\n"}
+dot = gv.Digraph("all-combos-p-values")
+# Add all the mechanisms as nodes
+for vm, wm in df_candidate.groupby(group_cols).groups:
+    dot.node(f"{vm}\n{wm}")
+# Create edges from the lessers to those they beat
+lessers = candidate_test_table[(candidate_test_table["PValueLesser"] < alpha)]
+for _, row in lessers.iterrows():
+    p_value = row["PValueLesser"]
+    label = f"{p_value: .2f}" if p_value == 0 else f"{p_value: .2e}"
+    l_node = f'{row["VotingMechanism"]}\n{row["InactiveWeightingMechanism"]}'
+    r_node = f'{row["VotingMechanismOther"]}\n{row["InactiveWeightingMechanismOther"]}'
+    dot.edge(l_node, r_node, label=label)
+dot.graph_attr["ratio"] = f"{9.5 / 11}"
+dot.render(format="eps", directory=f"img/{img_path}/")
+dot
 ```

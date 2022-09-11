@@ -179,6 +179,7 @@ plot = sns.FacetGrid(
     col_wrap=2,
     sharey=True,
     ylim=(0, 1 * 1.1),
+    height=4,
 )
 
 plotting_func = functools.partial(custom_plot, mean_var="InactiveWeightingMechanism")
@@ -193,5 +194,5 @@ del df_plot
 ```python pycharm={"name": "#%%\n"}
 should_save = True
 if should_save:
-    save_eps(plot.get_figure(), "combined_comparison.eps", dir_=f"img/{img_path}")
+    save_eps(plot.fig, "combined_comparison.eps", dir_=f"img/{img_path}")
 ```

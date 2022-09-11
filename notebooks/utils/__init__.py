@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+from IPython import get_ipython
 from scipy import stats as stats
+from tqdm import tqdm
+from tqdm.notebook import tqdm as tqdm_notebook
 
 
 def check_normality_by_group(
@@ -55,11 +58,27 @@ def get_data(filepaths: [str]) -> pd.DataFrame:
     )
 
 
+def is_notebook() -> bool:
+    # Source: https://stackoverflow.com/a/39662359/10078500
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
+        elif shell == "TerminalInteractiveShell":
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False  # Probably standard Python interpreter
+
+
 def perform_utests_against_others(
     df: pd.DataFrame, test_column, group_by: [str]
 ) -> pd.DataFrame:
     rows = []
-    for group in df.groupby(by=group_by).groups:
+    groups = df.groupby(by=group_by).groups
+    bar = tqdm_notebook(groups) if is_notebook() else tqdm(groups)
+    for group in bar:
         out_row = dict()
         if not isinstance(group, tuple):
             group = (group,)
@@ -109,7 +128,8 @@ def perform_utests_against_others_individually(
     groups = {
         (g,) if not isinstance(g, tuple) else g for g in df.groupby(by=group_by).groups
     }
-    for group in groups:
+    bar = tqdm_notebook(groups) if is_notebook() else tqdm(groups)
+    for group in bar:
         group_row = dict()
         # Get the rows for this group
         target_rows = np.ones(len(df)).astype(bool)

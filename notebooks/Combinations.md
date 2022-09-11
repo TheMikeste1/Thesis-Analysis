@@ -235,6 +235,22 @@ test_table = perform_utests_against_others_individually(
 )
 ```
 
+```python pycharm={"name": "#%%\n"}
+lessers = test_table[(test_table["PValueLesser"] < alpha)]
+```
+
+```python pycharm={"name": "#%%\n"}
+plot = sns.countplot(
+    data=lessers,
+    x="VotingMechanism",
+    hue="InactiveWeightingMechanism",
+    order=average_mechanisms + [""] + candidate_mechanisms,
+)
+plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+max_possible = len(df.groupby(by=group_cols).groups) - 1
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
+```
+
 <!-- #region pycharm={"name": "#%% md\n"} -->
 ### Average Mechanisms
 <!-- #endregion -->
@@ -274,9 +290,15 @@ dot
 ```
 
 ```python pycharm={"name": "#%%\n"}
-plot = sns.countplot(data=lessers, x="VotingMechanism", hue='InactiveWeightingMechanism')
+plot = sns.countplot(
+    data=lessers,
+    x="VotingMechanism",
+    hue="InactiveWeightingMechanism",
+    order=average_mechanisms,
+)
 plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
-plot.set_ylabel("Times lower error than other")
+max_possible = len(df_average.groupby(by=group_cols).groups) - 1
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -318,7 +340,13 @@ dot
 ```
 
 ```python pycharm={"name": "#%%\n"}
-plot = sns.countplot(data=lessers, x="VotingMechanism", hue='InactiveWeightingMechanism')
+plot = sns.countplot(
+    data=lessers,
+    x="VotingMechanism",
+    hue="InactiveWeightingMechanism",
+    order=candidate_mechanisms,
+)
 plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
-plot.set_ylabel("Times lower error than other");
+max_possible = len(df_candidate.groupby(by=group_cols).groups) - 1
+plot.set_ylabel(f"Times lower error than other\n(Max possible: {max_possible})");
 ```

@@ -252,7 +252,7 @@ lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
 ```python pycharm={"name": "#%%\n"}
 should_save = True
 if should_save:
-    save_eps(plot.fig, "combined_lesser_counts.eps", dir_=f"img/{img_path}")
+    save_eps(plot.get_figure(), "combined_lesser_counts.eps", dir_=f"img/{img_path}")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -310,7 +310,7 @@ lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
 ```python pycharm={"name": "#%%\n"}
 should_save = True
 if should_save:
-    save_eps(plot.fig, "combined_average_lesser_counts.eps", dir_=f"img/{img_path}")
+    save_eps(plot.get_figure(), "combined_average_lesser_counts.eps", dir_=f"img/{img_path}")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -368,5 +368,5 @@ lessers[group_cols].value_counts().reset_index().rename(columns={0: "Count"})
 ```python pycharm={"name": "#%%\n"}
 should_save = True
 if should_save:
-    save_eps(plot.fig, "combined_candidate_lesser_counts.eps", dir_=f"img/{img_path}")
+    save_eps(plot.get_figure(), "combined_candidate_lesser_counts.eps", dir_=f"img/{img_path}")
 ```

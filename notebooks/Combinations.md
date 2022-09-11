@@ -256,7 +256,7 @@ average_test_table = test_table[
 ```
 
 ```python pycharm={"name": "#%%\n"}
-dot = gv.Digraph("all-combos-p-values")
+dot = gv.Digraph("average-combos-p-values")
 # Add all the mechanisms as nodes
 for vm, wm in df_average.groupby(group_cols).groups:
     dot.node(f"{vm}\n{wm}")
@@ -271,6 +271,12 @@ for _, row in lessers.iterrows():
 dot.graph_attr["ratio"] = f"{9.5 / 11}"
 dot.render(format="eps", directory=f"img/{img_path}/")
 dot
+```
+
+```python pycharm={"name": "#%%\n"}
+plot = sns.countplot(data=lessers, x="VotingMechanism", hue='InactiveWeightingMechanism')
+plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+plot.set_ylabel("Times lower error than other")
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -294,7 +300,7 @@ candidate_test_table = test_table[
 ```
 
 ```python pycharm={"name": "#%%\n"}
-dot = gv.Digraph("all-combos-p-values")
+dot = gv.Digraph("candidate-combos-p-values")
 # Add all the mechanisms as nodes
 for vm, wm in df_candidate.groupby(group_cols).groups:
     dot.node(f"{vm}\n{wm}")
@@ -309,4 +315,10 @@ for _, row in lessers.iterrows():
 dot.graph_attr["ratio"] = f"{9.5 / 11}"
 dot.render(format="eps", directory=f"img/{img_path}/")
 dot
+```
+
+```python pycharm={"name": "#%%\n"}
+plot = sns.countplot(data=lessers, x="VotingMechanism", hue='InactiveWeightingMechanism')
+plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+plot.set_ylabel("Times lower error than other");
 ```

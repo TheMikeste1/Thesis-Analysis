@@ -20,11 +20,13 @@ import numpy as np
 import pandas as pd
 from scipy import stats as stats
 import seaborn as sns
+from tqdm.notebook import tqdm as tqdm_notebook
+
 from utils import *
 ```
 
 ```python pycharm={"name": "#%%\n"}
-img_path = 'combinations'
+img_path = 'ratios'
 ```
 
 <!-- #region pycharm={"name": "#%% md\n"} -->
@@ -88,13 +90,40 @@ df.head()
 <!-- #endregion -->
 
 ```python pycharm={"name": "#%%\n"}
+df_original = df
+
+df = df[
+    (df["VotingMechanism"] != "WeightlessAverageAll")
+    | (df["InactiveWeightingMechanism"] == "NoOp")
+]
+
+# Clone all WeightlessAverageAll into each weighting mechanism so it appears on graphs as we want
+for wm in df.loc[
+    df["InactiveWeightingMechanism"] != "NoOp", "InactiveWeightingMechanism"
+].unique():
+    df_tmp = df[df["VotingMechanism"] == "WeightlessAverageAll"].copy()
+    df_tmp["InactiveWeightingMechanism"] = wm
+    df = pd.concat([df, df_tmp])
+df.reset_index(drop=True, inplace=True)
+
+df = df[df["InactiveWeightingMechanism"] != "NoOp"]
+
+disable_chain_warning()
+df["VotingMechanism"] = df["VotingMechanism"].astype("category")
+df["InactiveWeightingMechanism"] = df[
+    "InactiveWeightingMechanism"
+].astype("category")
+enable_chain_warning()
+```
+
+```python pycharm={"name": "#%%\n"}
 fig = plt.figure(figsize=(20,10))
 ax = fig.add_subplot(projection='3d')
 
 df_sample = df.sample(frac=0.0005)
 markers = ['o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd', 'P', 'X']
-for i, vm in enumerate(df_sample.groupby(by="VotingMechanism").groups):
-    values = df_sample[df_sample["VotingMechanism"] == vm]
+for i, vm in enumerate(df_sample.groupby(by="InactiveWeightingMechanism").groups):
+    values = df_sample[df_sample["InactiveWeightingMechanism"] == vm]
     ax.scatter(values["ProxyCount"], values["InactiveCount"], values["SquaredError"],
                marker=markers[i], label=vm)
 
@@ -102,4 +131,106 @@ ax.set_xlabel('ProxyCount')
 ax.set_ylabel('InactiveCount')
 ax.set_zlabel('SquaredError')
 ax.legend();
+```
+
+```python pycharm={"name": "#%%\n"}
+df_plot = df.copy()
+
+plot = sns.relplot(
+    data=df_plot,
+    x="ProxyCount",
+    y="SquaredError",
+    hue="VotingMechanism",
+    col="InactiveWeightingMechanism",
+    col_wrap=2,
+    kind="line",
+    errorbar=None,
+)
+plt.tight_layout()
+plot.add_legend(loc="center right")
+plot.figure.subplots_adjust(right=0.79)
+del df_plot
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="proxy_count.eps")
+```
+
+```python pycharm={"name": "#%%\n"}
+df_plot = df.copy()
+
+plot = sns.relplot(
+    data=df_plot,
+    x="InactiveCount",
+    y="SquaredError",
+    hue="VotingMechanism",
+    col="InactiveWeightingMechanism",
+    col_wrap=2,
+    kind="line",
+    errorbar=None,
+)
+plt.tight_layout()
+plot.add_legend(loc="center right")
+plot.figure.subplots_adjust(right=0.79)
+del df_plot
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="inactive_count.eps")
+```
+
+```python pycharm={"name": "#%%\n"}
+df_plot = df.copy()
+df_plot["Proxies:Inactive"] = df_plot["ProxyCount"] / df_plot["InactiveCount"]
+
+plot = sns.relplot(
+    data=df_plot[df_plot["Proxies:Inactive"] <= 5],
+    x="Proxies:Inactive",
+    y="SquaredError",
+    hue="VotingMechanism",
+    col="InactiveWeightingMechanism",
+    col_wrap=2,
+    kind="line",
+    errorbar=None,
+)
+plt.tight_layout()
+plot.add_legend(loc="center right")
+plot.figure.subplots_adjust(right=0.79)
+del df_plot
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="ratios_zoomed.eps")
+```
+
+```python pycharm={"name": "#%%\n"}
+df_plot = df.copy()
+df_plot["Proxies:Inactive"] = df_plot["ProxyCount"] / df_plot["InactiveCount"]
+
+plot = sns.relplot(
+    data=df_plot,
+    x="Proxies:Inactive",
+    y="SquaredError",
+    hue="VotingMechanism",
+    col="InactiveWeightingMechanism",
+    col_wrap=2,
+    kind="line",
+    errorbar=None,
+)
+plt.tight_layout()
+plot.add_legend(loc="center right")
+plot.figure.subplots_adjust(right=0.79)
+del df_plot
+```
+
+```python pycharm={"name": "#%%\n"}
+should_save = True
+if should_save:
+    save_eps(plot.fig, dir_=f"img/{img_path}", name="ratios.eps")
 ```

@@ -26,7 +26,7 @@ from utils import *
 ```
 
 ```python
-img_path = 'ratios'
+img_path = 'weightless'
 ```
 
 ## Read in the data

@@ -157,7 +157,7 @@ plt.xticks(rotation=90);
 ```
 
 ```python
-should_save = True
+should_save = False
 if should_save:
     save_eps(plot.get_figure(), dir_=f"img/{img_path}", name="voting_mechanisms_comparison.eps")
 ```
@@ -209,11 +209,13 @@ if should_create_test_table:
         if len(others) == 0:
             print(f"Group {other_group} has 0 rows, skipping. . .")
             continue
+        result_equal = stats.mannwhitneyu(x=target, y=others, alternative="two-sided")
         result_less = stats.mannwhitneyu(x=target, y=others, alternative="less")
         out_row.update(
             {
                 "Statistic": result_less.statistic,
                 "PValueLesser": result_less.pvalue,
+                "PValueEqual": 1 - result_equal.pvalue
             }
         )
         rows.append(out_row)
@@ -243,6 +245,11 @@ alpha = 0.05
 lessers = test_table[(test_table["PValueLesser"] < alpha)].reset_index(drop=True)
 print("Less than Others")
 display(lessers)
+
+original_len = len(test_table)
+asymm_len = len(lessers)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
 ```
 
 It looks like those that perform better always have at least on asymmetrical distribution. Is this correct?
@@ -295,15 +302,91 @@ asymm_len = len(
 print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
 ```
 
-Incredibly, the normal population only has ~75% of instances with at least one asymmetrical distribution! This might actually indicate the Proxy Vote System works better than averaging on asymmetrical error distributions!
-
-
-Are there any asymmetrical distributions that are *not* one of the lessers?
+Incredibly, the normal population only has ~75% of instances with at least one asymmetrical distribution! This might actually indicate the Proxy Vote System works better than averaging on asymmetrical error distributions! However, what percent of these instances are actually lesser?
 
 ```python
-df_asymms = df.loc[
-    (df["ProxyDistribution"].isin(asymmetric_distros))
-    | (df["InactiveDistribution"].isin(asymmetric_distros)),
+# Test to make sure the test table has a similar population to the main dataframe
+original_len = len(
+    test_table[
+        (test_table["ProxyDistribution"].isin(asymmetric_distros))
+        | (test_table["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+asymm_len = len(
+    lessers[
+        (lessers["ProxyDistribution"].isin(asymmetric_distros))
+        | (lessers["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
+```
+
+### How many of these are Proxy distributions vs Inactive distributions?
+
+```python
+original_len = len(lessers)
+asymm_len = len(
+    lessers[
+        (lessers["ProxyDistribution"].isin(asymmetric_distros))
+        & ~(lessers["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
+```
+
+```python
+original_len = len(lessers)
+asymm_len = len(
+    lessers[
+        ~(lessers["ProxyDistribution"].isin(asymmetric_distros))
+        & (lessers["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
+```
+
+```python
+original_len = len(test_table)
+asymm_len = len(
+    test_table[
+        (test_table["ProxyDistribution"].isin(asymmetric_distros))
+        & ~(test_table["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
+```
+
+```python
+original_len = len(test_table)
+asymm_len = len(
+    test_table[
+        ~(test_table["ProxyDistribution"].isin(asymmetric_distros))
+        & (test_table["InactiveDistribution"].isin(asymmetric_distros))
+    ]
+)
+
+print(f"{asymm_len}/{original_len}; {asymm_len / original_len * 100:.2f}%")
+```
+
+```python
+lessers[
+    ["VotingMechanism", "InactiveWeightingMechanism"]
+].value_counts().reset_index().sort_values(
+    by=[0, "VotingMechanism", "InactiveWeightingMechanism"],
+        ascending=[False, True, True]
+)
+```
+
+### Are there any asymmetrical distributions that are *not* one of the lessers?
+
+```python
+df_asymms = test_table.loc[
+    (test_table["ProxyDistribution"].isin(asymmetric_distros))
+    | (test_table["InactiveDistribution"].isin(asymmetric_distros)),
     ["ProxyDistribution", "InactiveDistribution"],
 ].drop_duplicates().reset_index(drop=True)
 df_asymms
@@ -333,6 +416,14 @@ df_different
 
 All distributions on both sides are asymmetrical. Additionally, having a more severe the bias in the distribution, as is the case for the .3 betas, seems to result in it not working as well when both distributions are asymmetrical.
 
+```python
+lessers[
+    ["ProxyDistribution", "InactiveDistribution"]
+].value_counts().reset_index().sort_values(
+    by=[0, "ProxyDistribution", "InactiveDistribution"],
+        ascending=[False, True, True]
+)
+```
 
 ### The next natural question is how many have *both* distributions asymmetrical?
 
@@ -429,12 +520,13 @@ That's very strange. I wonder why that is?
 ### Which of the lessers are both asymmetrical?
 
 ```python
-lessers[
+lessers.loc[
     (
         (lessers["ProxyDistribution"].isin(asymmetric_distros))
         & (lessers["InactiveDistribution"].isin(asymmetric_distros))
-    )
-]
+    ),
+    ["ProxyDistribution", "InactiveDistribution"]
+].drop_duplicates()
 ```
 
 There does not seem to be any clear pattern, though the Inactive distribution has a lot of Beta(0.3, 0.3).

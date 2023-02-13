@@ -1,11 +1,11 @@
-ipython~=8.5.0
+ipython==8.10.0
 jupyter
 jupytext>=1.14.1
 graphviz>=0.20.1
-matplotlib==3.5.3
+matplotlib==3.6.3
 numpy>=1.23.3
 pandas>=1.4.4
 pyarrow>=9.0.0
-scipy==1.9.1
+scipy==1.10.0
 seaborn>=0.12.0
 tqdm~=4.64.1

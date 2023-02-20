@@ -11,7 +11,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 DATA_DIR = "./data"
-filename = "2023-02-12_20-35-29.arrow"
+filename = "shift_10_percent.arrow"
 METRIC_COLS = {
     "estimate",
     "min_proxy_weight",
@@ -22,7 +22,6 @@ METRIC_COLS = {
 logger.info("Reading file")
 df_raw = pd.read_feather(f"{DATA_DIR}/raw/{filename}")
 df_raw["total_agents"] = df_raw["number_of_proxies"] + df_raw["number_of_delegates"]
-df_raw.drop(columns="number_of_delegates", inplace=True)
 
 logger.info("Merging. . .")
 df_all_agents = df_raw[df_raw["coordination_mechanism"] == "All Agents"]
@@ -34,11 +33,13 @@ df_merged = pd.merge(
 )
 logger.info("Calculating error")
 df_raw["error"] = df_merged["estimate"] - df_merged["estimate_all_agents"]
+METRIC_COLS.add("error")
 df_raw["squared_error"] = df_raw["error"] ** 2
+METRIC_COLS.add("squared_error")
 
 logger.info(f"Describing {len(df_raw)} rows. . .")
 df_processed: pd.DataFrame = df_raw.groupby(
-    by=list(set(df_raw.columns) - METRIC_COLS)
+    by=list(set(df_raw.columns) - METRIC_COLS - {"generation_id"})
 ).describe()
 
 logger.info("Cleaning up. . .")

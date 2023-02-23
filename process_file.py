@@ -17,6 +17,7 @@ METRIC_COLS = {
     "min_proxy_weight",
     "max_proxy_weight",
     "average_proxy_weight",
+    "median_proxy_weight",
 }
 
 logger.info("Reading file")
@@ -50,11 +51,7 @@ df_processed.rename(
     inplace=True,
 )
 df_processed.drop(
-    columns=[
-        c
-        for c in df_processed.columns
-        if "generation_id" in c or "estimate" in c or "/count" in c
-    ],
+    columns=[c for c in df_processed.columns if "generation_id" in c or "/count" in c],
     inplace=True,
 )
 df_processed.to_feather(f"{DATA_DIR}/processed_{filename}")

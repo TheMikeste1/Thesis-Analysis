@@ -13,6 +13,7 @@ jupyter:
 ---
 
 ```python
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 ```
@@ -23,30 +24,104 @@ import seaborn as sns
 DATA_DIR = "../data"
 ID_COLS = { "shifted", "distribution", "number_of_proxies", "total_agents", "distribution" }
 MECHANISM_COLS = { "coordination_mechanism", "voting_mechanism" }
-METRIC_COLS = {"error", "squared_error", "min_proxy_weight", "max_proxy_weight", "average_proxy_weight"}
+METRIC_COLS = {"error", "squared_error", "min_proxy_weight", "max_proxy_weight", "average_proxy_weight", "median_proxy_weight"}
 ```
 
+Here we're focussed on when the expert mechanism with no preference change. Let's load specifically that data.
+
 ```python
-if "df_data" not in globals() or True:
-    df_data = pd.read_feather(f"{DATA_DIR}/processed_shift_10_percent.arrow")
-df_data.info(memory_usage=True)
-df_data
+df_processed = pd.read_feather(f"{DATA_DIR}/processed_shift_10_percent.arrow")
+df_processed = df_processed[
+    (df_processed["shifted"])
+    & (
+        (df_processed["coordination_mechanism"] == "Active Only")
+    )
+]
+df_processed["coordination_mechanism"].cat.remove_unused_categories(inplace=True)
+
+df_described = pd.read_feather(f"{DATA_DIR}/described_shift_10_percent.arrow")
+df_all_agents = df_described[
+    (df_described["coordination_mechanism"] == "All Agents")
+    & (df_described["shifted"])
+]
+df_all_agents["coordination_mechanism"].cat.remove_unused_categories(inplace=True)
+df_described = df_described[
+    (df_described["coordination_mechanism"] == "Active Only")
+    & (df_described["shifted"])
+]
+df_described["coordination_mechanism"].cat.remove_unused_categories(inplace=True)
+
+df_described.info(memory_usage=True)
+df_described
 ```
 
 # Analysis
 
 ```python
-sns.relplot(
-    data=df_data[
-        (~df_data["shifted"])
-        # & (~df_data["coordination_mechanism"].isin({"All Agents"}))
-    ],
-    x="number_of_delegates",
-    y="error/mean",
+facet = sns.catplot(
+    data=df_processed,
+    x="distribution",
+    y="error_as_percent_of_space_abs",
+    col="voting_mechanism",
     hue="coordination_mechanism",
-    col="distribution",
-    row="voting_mechanism",
-    facet_kws=dict(sharey=False),
-    kind="line"
-);
+    kind="boxen",
+    sharey= False
+)
+```
+
+```python
+facet = sns.catplot(
+    data=df_processed,
+    x="distribution",
+    y="improvement",
+    col="voting_mechanism",
+    hue="coordination_mechanism",
+    kind="boxen",
+    sharey= False
+)
+```
+
+```python
+facet = sns.relplot(
+    data=pd.concat([df_described]),
+    x="number_of_delegates",
+    y="squared_error/mean",
+    col="voting_mechanism",
+    row="distribution",
+    hue="coordination_mechanism",
+    kind="line",
+    facet_kws={"sharey": False}
+)
+facet.fig.subplots_adjust(top=0.9)
+facet.fig.suptitle("Preference Change - Expert w/ Consequences");
+```
+
+```python
+facet = sns.relplot(
+    data=pd.concat([df_described]),
+    x="number_of_delegates",
+    y="squared_error/mean",
+    col="voting_mechanism",
+    row="distribution",
+    hue="coordination_mechanism",
+    kind="line",
+)
+facet.set(ylim=(0, 1e-1))
+facet.fig.subplots_adjust(top=0.9)
+facet.fig.suptitle("Preference Change - Expert w/ Consequences");
+```
+
+```python
+facet = sns.relplot(
+    data=pd.concat([df_described]).query("number_of_delegates < 256"),
+    x="number_of_delegates",
+    y="squared_error/mean",
+    col="voting_mechanism",
+    row="distribution",
+    hue="coordination_mechanism",
+    kind="line",
+    facet_kws={"sharey": False}
+)
+facet.fig.subplots_adjust(top=0.9)
+facet.fig.suptitle("Preference Change - Expert w/ Consequences");
 ```

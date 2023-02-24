@@ -11,7 +11,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 DATA_DIR = "./data"
-filename = "shift_10_percent.arrow"
+filename = "3739165392236705654.arrow"
 METRIC_COLS = {
     "estimate",
     "min_proxy_weight",
@@ -24,7 +24,7 @@ MIN_PREFERENCE = -1
 
 logger.info("Reading file")
 df_raw = pd.read_feather(f"{DATA_DIR}/raw/{filename}")
-df_raw["total_agents"] = df_raw["number_of_proxies"] + df_raw["number_of_delegates"]
+df_raw["total_agents"] = df_raw["number_of_proxies"] + df_raw["number_of_delegators"]
 
 logger.info("Merging for error. . .")
 df_merged = pd.merge(

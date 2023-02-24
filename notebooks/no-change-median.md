@@ -89,7 +89,7 @@ facet = sns.catplot(
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described, df_active_only]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -104,7 +104,7 @@ facet.fig.suptitle("No Preference Change - Median");
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described, df_active_only]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -118,8 +118,8 @@ facet.fig.suptitle("No Preference Change - Median");
 
 ```python
 facet = sns.relplot(
-    data=pd.concat([df_described, df_active_only]).query("number_of_delegates < 256"),
-    x="number_of_delegates",
+    data=pd.concat([df_described, df_active_only]).query("number_of_delegators < 256"),
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",

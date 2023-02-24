@@ -84,7 +84,7 @@ facet = sns.catplot(
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -99,7 +99,7 @@ facet.fig.suptitle("Preference Change - Expert w/ Consequences");
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -113,8 +113,8 @@ facet.fig.suptitle("Preference Change - Expert w/ Consequences");
 
 ```python
 facet = sns.relplot(
-    data=pd.concat([df_described]).query("number_of_delegates < 256"),
-    x="number_of_delegates",
+    data=pd.concat([df_described]).query("number_of_delegators < 256"),
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",

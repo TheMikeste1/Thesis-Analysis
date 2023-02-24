@@ -77,7 +77,7 @@ facet = sns.catplot(
 ```python
 facet = sns.catplot(
     # TODO: All the low numbers are the same. What happens at higher numbers of delegates?
-    data=df_processed.query("number_of_delegates >= 0"),
+    data=df_processed.query("number_of_delegators >= 0"),
     x="distribution",
     y="improvement",
     col="voting_mechanism",
@@ -90,7 +90,7 @@ facet = sns.catplot(
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described, df_active_only]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -105,7 +105,7 @@ facet.fig.suptitle("No Preference Change - Mean");
 ```python
 facet = sns.relplot(
     data=pd.concat([df_described, df_active_only]),
-    x="number_of_delegates",
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",
@@ -119,8 +119,8 @@ facet.fig.suptitle("No Preference Change - Mean");
 
 ```python
 facet = sns.relplot(
-    data=pd.concat([df_described, df_active_only]).query("number_of_delegates < 256"),
-    x="number_of_delegates",
+    data=pd.concat([df_described, df_active_only]).query("number_of_delegators < 256"),
+    x="number_of_delegators",
     y="squared_error/mean",
     col="voting_mechanism",
     row="distribution",

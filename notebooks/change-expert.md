@@ -30,7 +30,7 @@ METRIC_COLS = {"error", "squared_error", "min_proxy_weight", "max_proxy_weight",
 Here we're focussed on when the expert mechanism with no preference change. Let's load specifically that data.
 
 ```python
-df_processed = pd.read_feather(f"{DATA_DIR}/processed_shift_10_percent.arrow")
+df_processed = pd.read_feather(f"{DATA_DIR}/processed_3739165392236705654.arrow")
 df_processed = df_processed[
     (df_processed["shifted"])
     & (
@@ -40,7 +40,7 @@ df_processed = df_processed[
 ]
 df_processed["coordination_mechanism"].cat.remove_unused_categories(inplace=True)
 
-df_described = pd.read_feather(f"{DATA_DIR}/described_shift_10_percent.arrow")
+df_described = pd.read_feather(f"{DATA_DIR}/described_3739165392236705654.arrow")
 df_all_agents = df_described[
     (df_described["coordination_mechanism"] == "All Agents")
     & (df_described["shifted"])

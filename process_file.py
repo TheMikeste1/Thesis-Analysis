@@ -62,6 +62,18 @@ df_raw["improvement_as_percent_of_space"] = df_raw["improvement"] / (
 )
 METRIC_COLS.add("improvement_as_percent_of_space")
 
+df_merge = pd.merge(
+    df_raw,
+    df_raw.query("shifted == True"),
+    on=list(set(df_raw.columns) - METRIC_COLS - {"shifted"}),
+    suffixes=("", "/shifted"),
+)
+new_cols = []
+for col in METRIC_COLS:
+    df_raw[f"shifted_diff/{col}"] = df_merge[f"{col}"] - df_merge[f"{col}/shifted"]
+    new_cols.append(f"shifted_diff/{col}")
+METRIC_COLS.update(new_cols)
+
 logger.info("Saving processed. . .")
 df_raw.to_feather(f"{DATA_DIR}/processed_{filename}")
 

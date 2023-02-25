@@ -22,9 +22,23 @@ import seaborn as sns
 
 ```python
 DATA_DIR = "../data"
-ID_COLS = { "shifted", "distribution", "number_of_proxies", "total_agents", "distribution" }
+ID_COLS = { "shifted", "distribution", "number_of_proxies", "number_of_delegators", "total_agents", "distribution" }
 MECHANISM_COLS = { "coordination_mechanism", "voting_mechanism" }
-METRIC_COLS = {"error", "squared_error", "min_proxy_weight", "max_proxy_weight", "average_proxy_weight", "median_proxy_weight"}
+METRIC_COLS = {
+    "error",
+    "improvement",
+    "improvement_as_percent_of_space",
+    "error_as_percent_of_space",
+    "error_as_percent_of_space_squared",
+    "error_as_percent_of_space_abs",
+    "estimate", "squared_error", "min_proxy_weight", "max_proxy_weight", "average_proxy_weight", "median_proxy_weight"
+}
+ADDITIONAL_METRICS = {"min", "max", "mean", "25%", "50%", "75%", "std"}
+ALL_METRIC_COLS = {
+    f"{metric}/{statistic}"
+    for metric in METRIC_COLS
+    for statistic in ADDITIONAL_METRICS
+}
 ```
 
 Here we're focussed on when the expert mechanism with no preference change. Let's load specifically that data.

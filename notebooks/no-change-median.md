@@ -22,17 +22,28 @@ import seaborn as sns
 
 ```python
 DATA_DIR = "../data"
-ID_COLS = { "shifted", "distribution", "number_of_proxies", "number_of_delegators", "total_agents", "distribution" }
-MECHANISM_COLS = { "coordination_mechanism", "voting_mechanism" }
+ID_COLS = {"shifted", "total_agents", "distribution"}
+X_COLS = {
+    "number_of_proxies",
+    "number_of_delegators",
+    "percent_delegators",
+}
+MECHANISM_COLS = {"coordination_mechanism", "voting_mechanism"}
 METRIC_COLS = {
+    "average_proxy_weight",
     "error",
+    "error_as_percent_of_space",
+    "error_as_percent_of_space_abs",
+    "error_as_percent_of_space_squared",
+    "estimate",
     "improvement",
     "improvement_as_percent_of_space",
-    "error_as_percent_of_space",
-    "error_as_percent_of_space_squared",
-    "error_as_percent_of_space_abs",
-    "estimate", "squared_error", "min_proxy_weight", "max_proxy_weight", "average_proxy_weight", "median_proxy_weight"
+    "max_proxy_weight",
+    "median_proxy_weight",
+    "min_proxy_weight",
+    "squared_error",
 }
+METRIC_COLS |= {f"shifted_diff/{metric}" for metric in METRIC_COLS}
 ADDITIONAL_METRICS = {"min", "max", "mean", "25%", "50%", "75%", "std"}
 ALL_METRIC_COLS = {
     f"{metric}/{statistic}"

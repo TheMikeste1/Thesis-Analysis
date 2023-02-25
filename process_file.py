@@ -28,6 +28,7 @@ MIN_PREFERENCE = -1
 logger.info("Reading file")
 df_raw = pd.read_feather(f"{DATA_DIR}/raw/{filename}")
 df_raw["total_agents"] = df_raw["number_of_proxies"] + df_raw["number_of_delegators"]
+df_raw["percent_delegators"] = df_raw["number_of_delegators"] / df_raw["total_agents"]
 
 #%% Error
 logger.info("Merging for error. . .")

@@ -16,9 +16,11 @@ logger.addHandler(handler)
 
 DATA_DIR = "./data"
 files = [
-    "17842264490753980280_shift-0.5_agents-16.arrow",
-    "16874621291821625949_shift-0.5_agents-24.arrow",
-    "16007220157225280629_shift-0.5_agents-512.arrow",
+    # "17842264490753980280_shift-0.5_agents-16.arrow",
+    # "16874621291821625949_shift-0.5_agents-24.arrow",
+    # "16007220157225280629_shift-0.5_agents-512.arrow",
+    # "3835725152179940511_different_weights_shift-0.5_agents-24.arrow",
+    "8478302742015663636_shift-0.5_agents-24.arrow",
 ]
 
 MAX_PREFERENCE = 1

@@ -1,5 +1,6 @@
 import sys
 import logging
+import numpy as np
 import pandas as pd
 import winsound
 
@@ -21,7 +22,8 @@ files = [
     # "16007220157225280629_shift-0.5_agents-512.arrow",
     # "3835725152179940511_different_weights_shift-0.5_agents-24.arrow",
     # "8478302742015663636_shift-0.5_agents-24.arrow",
-    "819054081884506049_shift-5_agents-24.arrow",
+    # "819054081884506049_shift-5_agents-24.arrow",
+    "64022160486494540_shift-5_agents-24.arrow",
 ]
 
 MAX_PREFERENCE = 1
@@ -94,6 +96,19 @@ for filename in files:
         df_merged["error"]
     )
     new_cols.add("improvement")
+
+    df_merged["error_over_active-only_error"] = abs(
+        df_merged["error"] / df_merged["error_active_only"]
+    )
+    df_merged.replace([np.inf, -np.inf], np.nan, inplace=True)
+    new_cols.add("error_over_active-only_error")
+
+    df_merged["log_error_over_active-only_error"] = np.log(
+        df_merged["error_over_active-only_error"] + 1
+    )
+    df_merged.replace([np.inf, -np.inf], np.nan, inplace=True)
+    new_cols.add("log_error_over_active-only_error")
+
     df_merged["improvement_as_percent_of_space"] = df_merged["improvement"] / (
         MAX_PREFERENCE - MIN_PREFERENCE
     )
@@ -138,10 +153,6 @@ for filename in files:
     df_described.columns = df_described.columns.map("/".join)
     df_described.rename(
         columns={c: c[:-1] if c.endswith("/") else c for c in df_described.columns},
-        inplace=True,
-    )
-    df_described.drop(
-        columns=[c for c in df_described.columns if "/count" in c],
         inplace=True,
     )
 

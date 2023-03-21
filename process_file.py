@@ -63,18 +63,22 @@ for filename in files:
     new_cols = set()
     df_merged["error"] = df_merged["estimate"] - df_merged["estimate_all_agents"]
     new_cols.add("error")
-    df_merged["error_as_percent_of_space"] = df_merged["error"] / (
-        MAX_PREFERENCE - MIN_PREFERENCE
+
+    df_merged["error_as_percent_of_space"] = (
+        df_merged["error"] / (MAX_PREFERENCE - MIN_PREFERENCE) * 100
     )
     new_cols.add("error_as_percent_of_space")
+
     df_merged["squared_error"] = df_merged["error"] ** 2
     new_cols.add("squared_error")
+
     df_merged["error_as_percent_of_space_squared"] = (
         df_merged["error_as_percent_of_space"] ** 2
     )
     new_cols.add("error_as_percent_of_space_squared")
-    df_merged["error_as_percent_of_space_abs"] = (
-        df_merged["error_as_percent_of_space"] ** 2
+
+    df_merged["error_as_percent_of_space_abs"] = abs(
+        df_merged["error_as_percent_of_space"]
     )
     new_cols.add("error_as_percent_of_space_abs")
 
@@ -132,8 +136,10 @@ for filename in files:
             df_merged[f"{col}"] - df_merged[f"{col}/shifted"]
         )
         new_cols.add(f"shifted_diff/{col}")
-        df_merged[f"shifted_diff/abs/{col}"] = abs(df_merged[f"shifted_diff/{col}"])
-        new_cols.add(f"shifted_diff/abs/{col}")
+        df_merged[f"shifted_diff/abs_diff/{col}"] = abs(df_merged[f"{col}"]) - abs(
+            df_merged[f"{col}/shifted"]
+        )
+        new_cols.add(f"shifted_diff/abs_diff/{col}")
 
     df_raw = pd.merge(df_raw, df_merged[list(new_cols) + ["ID"]], on=["ID"])
     METRIC_COLS |= new_cols

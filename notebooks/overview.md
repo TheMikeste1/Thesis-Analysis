@@ -47,7 +47,7 @@ set(df_described.columns)
 
 ```python
 facet = sns.relplot(
-    data=df_described,
+    data=df_described.query("shifted == False"),
     x="number_of_delegators",
     y="error_as_percent_of_space_abs/mean",
     hue="coordination_mechanism",
@@ -55,7 +55,7 @@ facet = sns.relplot(
     kind="line",
     errorbar=None
 )
-facet.set(xlabel="Number of Delegators", ylabel="| Error as percent of space |")
+facet.set(xlabel="Number of Delegators", ylabel="| Error | as % of space")
 facet.legend.set_title("Coordination\nMechanism")
 facet.set_titles("Voting Mechanism: {col_name}")
 facet.savefig("./plots/vm_col_cm_hue_error_as_percent_of_space_abs_mean.eps", format='eps')
@@ -63,7 +63,7 @@ facet.savefig("./plots/vm_col_cm_hue_error_as_percent_of_space_abs_mean.eps", fo
 
 ```python
 facet = sns.relplot(
-    data=df_described,
+    data=df_described.query("shifted == False"),
     x="number_of_delegators",
     y="error_as_percent_of_space_abs/std",
     hue="coordination_mechanism",
@@ -71,7 +71,7 @@ facet = sns.relplot(
     kind="line",
     errorbar=None
 )
-facet.set(xlabel="Number of Delegators", ylabel="| Error as percent of space | std. deviation")
+facet.set(xlabel="Number of Delegators", ylabel="| Error | as % of space std. deviation")
 facet.legend.set_title("Coordination\nMechanism")
 facet.set_titles("Voting Mechanism: {col_name}")
 facet.savefig("./plots/vm_col_cm_hue_error_as_percent_of_space_abs_std.eps", format='eps')
@@ -80,22 +80,21 @@ facet.savefig("./plots/vm_col_cm_hue_error_as_percent_of_space_abs_std.eps", for
 ## Preference Change
 
 ```python
+df_described["shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs"] = abs(df_described["shifted_diff/abs_diff/error_as_percent_of_space_abs/mean"])
 facet = sns.relplot(
     data=df_described,
     x="number_of_delegators",
-    y="shifted_diff/abs/error_as_percent_of_space_abs/mean",
+    y="shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs",
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",
     errorbar=None,
 )
-facet.set(xlabel="Number of Delegators", ylabel="Absolute difference in error\nafter preference change")
+facet.set(xlabel="Number of Delegators", ylabel="Difference in error\nafter preference change")
 facet.legend.set_title("Coordination\nMechanism")
 facet.set_titles("Voting Mechanism: {col_name}")
 facet.savefig("./plots/abs_diff_from_preference_change_error_as_percent_of_space_abs_mean.eps", format='eps')
 ```
-
-## Distribution
 
 ```python
 facet = sns.relplot(
@@ -104,11 +103,30 @@ facet = sns.relplot(
     y="error_as_percent_of_space_abs/mean",
     hue="coordination_mechanism",
     col="voting_mechanism",
+    row="shifted",
+    kind="line",
+    errorbar=None,
+)
+facet.set(xlabel="Number of Delegators", ylabel="| Error | as % of space")
+facet.legend.set_title("Coordination\nMechanism")
+facet.set_titles("Voting Mechanism: {col_name}\nPreference change? {row_name}")
+facet.savefig("./plots/preference_change_error_as_percent_of_space_abs_mean.eps", format='eps')
+```
+
+## Distribution
+
+```python
+facet = sns.relplot(
+    data=df_described.query("shifted == False"),
+    x="number_of_delegators",
+    y="error_as_percent_of_space_abs/mean",
+    hue="coordination_mechanism",
+    col="voting_mechanism",
     row="distribution",
     kind="line",
     errorbar=None,
 )
-facet.set(xlabel="Number of Delegators", ylabel="| Error as percent of space |")
+facet.set(xlabel="Number of Delegators", ylabel="| Error | as % of space")
 facet.legend.set_title("Coordination\nMechanism")
 facet.set_titles("Voting Mechanism: {col_name}\nPreference Distribution {row_name}")
 facet.savefig("./plots/distribution_error_as_percent_of_space_abs_mean.eps", format='eps')
@@ -116,7 +134,7 @@ facet.savefig("./plots/distribution_error_as_percent_of_space_abs_mean.eps", for
 
 ```python
 facet = sns.relplot(
-    data=df_described,
+    data=df_described.query("shifted == False"),
     x="number_of_delegators",
     y="error_as_percent_of_space_abs/mean",
     hue="coordination_mechanism",
@@ -126,7 +144,7 @@ facet = sns.relplot(
     errorbar=None,
     facet_kws=dict(sharey=False)
 )
-facet.set(xlabel="Number of Delegators", ylabel="| Error as percent of space |")
+facet.set(xlabel="Number of Delegators", ylabel="| Error | as % of space")
 facet.legend.set_title("Coordination\nMechanism")
 facet.set_titles("Voting Mechanism: {col_name}\nPreference Distribution {row_name}")
 facet.savefig("./plots/distribution_different_scale_error_as_percent_of_space_abs_mean.eps", format='eps')

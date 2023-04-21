@@ -24,8 +24,8 @@ files = [
     # "8478302742015663636_shift-0.5_agents-24.arrow",
     # "819054081884506049_shift-5_agents-24.arrow",
     # "64022160486494540_shift-5_agents-24.arrow",
-    "2494359615335987012_shift-0.2_agents-24.arrow",
-    "18333677024494722382_shift-0.2_diff_weight_0.2_1_agents-24.arrow"
+    "5372052_shift-0.2_agents-24_weight_p1_c_0.2.arrow",
+    "5372052_shift-0.2_agents-24_weight_p1_c_1.arrow",
 ]
 
 MAX_PREFERENCE = 1

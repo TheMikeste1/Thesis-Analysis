@@ -45,7 +45,7 @@ del missing_cols
 
 
 def load_data(data_dir: str) -> (pd.DataFrame, pd.DataFrame):
-    FILENAME = "2494359615335987012_shift-0.2_agents-24"
+    FILENAME = "5372052_shift-0.2_agents-24_weight_p1_c_1"
     df_processed = pd.read_feather(f"{data_dir}/processed_{FILENAME}.arrow")
     df_processed.sort_values(by=SORT_BY, inplace=True)
 

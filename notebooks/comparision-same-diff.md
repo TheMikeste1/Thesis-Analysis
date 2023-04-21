@@ -29,7 +29,7 @@ import os
 
 save_dir = "./plots/different_weight"
 if not os.path.exists(save_dir):
-    os.mkdir(save_dir)
+    os.makedirs(save_dir)
 ```
 
 # Load Data
@@ -115,12 +115,22 @@ facet.savefig(f"{save_dir}/difference_abs_pref_percent_of_space.eps", format='ep
 ```
 
 ```python
-smoothing_factor = 0.75
-df_merged["smoothed_difference_in_error_as_percent_of_space_abs/mean"] = df_merged["difference_in_error_as_percent_of_space_abs/mean"].ewm(alpha=(1 - smoothing_factor)).mean()
+smoothing_factor = 0.90
+
+df_smoothed = (df_merged
+    .sort_values(by=SORT_BY + ["percent_delegators"])
+    .groupby(by=list(GENERATION_ID_COLS | MECHANISM_COLS))
+    .ewm(alpha=(1 - smoothing_factor))
+    .mean()
+    .reset_index()
+)
+```
+
+```python
 facet = sns.relplot(
-    data=df_merged.query("shifted == False"),
+    data=df_smoothed.query("shifted == False"),
     x="percent_delegators",
-    y="smoothed_difference_in_error_as_percent_of_space_abs/mean",
+    y="difference_in_error_as_percent_of_space_abs/mean",
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",

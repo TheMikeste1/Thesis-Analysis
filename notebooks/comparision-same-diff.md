@@ -39,14 +39,14 @@ DATA_DIR = "../data"
 ```
 
 ```python
-filename = "4726357999741453864_shift-5_agents-24-different-weights"
+filename = "18333677024494722382_shift-0.2_diff_weight_0.2_1_agents-24"
 df_diff_described = pd.read_feather(f"{DATA_DIR}/described_{filename}.arrow")
 df_diff_described.sort_values(by=SORT_BY, inplace=True)
 df_diff_described["percent_delegators"] = 100 * df_diff_described["number_of_delegators"] / df_diff_described["total_agents"]
 ```
 
 ```python
-filename = "64022160486494540_shift-5_agents-24"
+filename = "2494359615335987012_shift-0.2_agents-24"
 df_same_described = pd.read_feather(f"{DATA_DIR}/described_{filename}.arrow")
 df_same_described.sort_values(by=SORT_BY, inplace=True)
 df_same_described["percent_delegators"] = 100 * df_same_described["number_of_delegators"] / df_same_described["total_agents"]

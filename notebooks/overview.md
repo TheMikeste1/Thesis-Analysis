@@ -101,9 +101,9 @@ facet = sns.relplot(
     y="shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs",
     hue="coordination_mechanism",
     col="voting_mechanism",
-            kind="line",
+    kind="line",
     # scatter=False,
-    ci=None,
+    errorbar=None,
     # order=1,
 )
 facet.set(

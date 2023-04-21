@@ -133,12 +133,12 @@ for filename in files:
     new_cols = set()
     for col in METRIC_COLS:
         df_merged[f"shifted_diff/{col}"] = (
-            df_merged[f"{col}"] - df_merged[f"{col}/shifted"]
+            df_merged[f"{col}/shifted"] - df_merged[f"{col}"]
         )
         new_cols.add(f"shifted_diff/{col}")
-        df_merged[f"shifted_diff/abs_diff/{col}"] = abs(df_merged[f"{col}"]) - abs(
+        df_merged[f"shifted_diff/abs_diff/{col}"] = abs(
             df_merged[f"{col}/shifted"]
-        )
+        ) - abs(df_merged[f"{col}"])
         new_cols.add(f"shifted_diff/abs_diff/{col}")
 
     df_raw = pd.merge(df_raw, df_merged[list(new_cols) + ["ID"]], on=["ID"])

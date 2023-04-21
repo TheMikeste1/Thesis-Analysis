@@ -29,7 +29,7 @@ import os
 
 save_dir = "./plots"
 if not os.path.exists(save_dir):
-    os.mkdir(save_dir)
+    os.makedirs(save_dir)
 ```
 
 # Load Data
@@ -94,16 +94,17 @@ df_described["shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs"] = a
     df_described["shifted_diff/abs_diff/error_as_percent_of_space_abs/mean"]
 )
 
-facet = sns.lmplot(
+facet = sns.relplot(
     col_order=["Median", "Mean", "Midrange"],
     data=df_described,
     x="percent_delegators",
     y="shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs",
     hue="coordination_mechanism",
     col="voting_mechanism",
-    scatter=False,
+            kind="line",
+    # scatter=False,
     ci=None,
-    order=2,
+    # order=1,
 )
 facet.set(
     xlabel="%  Delegators", ylabel="Difference in error\nafter preference change"
@@ -177,7 +178,7 @@ facet.savefig(f"{save_dir}/distribution_different_scale_error_as_percent_of_spac
 
 ```python
 if not os.path.exists(f"{save_dir}/distributions"):
-    os.mkdir(f"{save_dir}/distributions")
+    os.makedirs(f"{save_dir}/distributions")
 
 max_y = max(df_described["error_as_percent_of_space_abs/mean"])
 margin = max_y * 0.025

@@ -27,7 +27,7 @@ sns.set(font_scale=1.15)
 ```python
 import os
 
-save_dir = "./plots/different_weight"
+save_dir = "./plots"
 if not os.path.exists(save_dir):
     os.mkdir(save_dir)
 ```
@@ -44,6 +44,10 @@ df_described["percent_delegators"] = 100 * df_described["number_of_delegators"] 
 set(df_described.columns)
 ```
 
+```python
+dists = sorted(df_described["distribution"].unique())
+```
+
 # Analysis
 
 
@@ -51,6 +55,7 @@ set(df_described.columns)
 
 ```python
 facet = sns.relplot(
+    col_order=["Median", "Mean", "Midrange"],
     data=df_described.query("shifted == False"),
     x="percent_delegators",
     y="error_as_percent_of_space_abs/mean",
@@ -67,6 +72,7 @@ facet.savefig(f"{save_dir}/vm_col_cm_hue_error_as_percent_of_space_abs_mean.eps"
 
 ```python
 facet = sns.relplot(
+    col_order=["Median", "Mean", "Midrange"],
     data=df_described.query("shifted == False"),
     x="percent_delegators",
     y="error_as_percent_of_space_abs/std",
@@ -89,6 +95,7 @@ df_described["shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs"] = a
 )
 
 facet = sns.lmplot(
+    col_order=["Median", "Mean", "Midrange"],
     data=df_described,
     x="percent_delegators",
     y="shifted_diff/abs_diff/error_as_percent_of_space_abs/mean_abs",
@@ -111,6 +118,7 @@ facet.savefig(
 
 ```python
 facet = sns.relplot(
+    col_order=["Median", "Mean", "Midrange"],
     data=df_described,
     x="percent_delegators",
     y="error_as_percent_of_space_abs/mean",
@@ -130,6 +138,8 @@ facet.savefig(f"{save_dir}/preference_change_error_as_percent_of_space_abs_mean.
 
 ```python
 facet = sns.relplot(
+    col_order=["Median", "Mean", "Midrange"],
+    row_order=dists,
     data=df_described.query("shifted == False"),
     x="percent_delegators",
     y="error_as_percent_of_space_abs/mean",
@@ -147,6 +157,8 @@ facet.savefig(f"{save_dir}/distribution_error_as_percent_of_space_abs_mean.eps",
 
 ```python
 facet = sns.relplot(
+    col_order=["Median", "Mean", "Midrange"],
+    row_order=dists,
     data=df_described.query("shifted == False"),
     x="percent_delegators",
     y="error_as_percent_of_space_abs/mean",
@@ -167,7 +179,6 @@ facet.savefig(f"{save_dir}/distribution_different_scale_error_as_percent_of_spac
 if not os.path.exists(f"{save_dir}/distributions"):
     os.mkdir(f"{save_dir}/distributions")
 
-dists = df_described["distribution"].unique()
 max_y = max(df_described["error_as_percent_of_space_abs/mean"])
 margin = max_y * 0.025
 
@@ -175,6 +186,7 @@ for d in dists:
     df_plot = df_described.query("distribution == @d")
     df_plot["distribution"] = df_plot["distribution"].cat.remove_unused_categories()
     facet = sns.relplot(
+        col_order=["Median", "Mean", "Midrange"],
         data=df_plot.query("shifted == False"),
         x="percent_delegators",
         y="error_as_percent_of_space_abs/mean",

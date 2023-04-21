@@ -75,6 +75,7 @@ facet = sns.relplot(
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",
+    col_order=["Median", "Mean", "Midrange"],
     errorbar=None
 )
 facet.set(xlabel="%  Delegators", ylabel="| Error | as % of space")
@@ -88,6 +89,7 @@ facet = sns.relplot(
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",
+    col_order=["Median", "Mean", "Midrange"],
     errorbar=None
 )
 facet.set(xlabel="%  Delegators", ylabel="| Error | as % of space")
@@ -103,6 +105,7 @@ facet = sns.relplot(
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",
+    col_order=["Median", "Mean", "Midrange"],
     errorbar=None
 )
 facet.set(xlabel="%  Delegators", ylabel="Difference in | Preference | as % of space")
@@ -121,6 +124,7 @@ facet = sns.relplot(
     hue="coordination_mechanism",
     col="voting_mechanism",
     kind="line",
+    col_order=["Median", "Mean", "Midrange"],
     errorbar=None
 )
 facet.set(xlabel="%  Delegators", ylabel="Difference in | Preference | as % of space")
@@ -138,6 +142,7 @@ facet = sns.lmplot(
     col="voting_mechanism",
     scatter=False,
     ci=None,
+    col_order=["Median", "Mean", "Midrange"],
     order=4,
 )
 facet.set(xlabel="%  Delegators", ylabel="Difference in | Preference | as % of space")
